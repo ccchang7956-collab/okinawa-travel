@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="沖繩 5天4夜 自駕行程地圖版，含 Leaflet 互動地圖、晴天雨天切換、離線提示、深色模式。">
+    <meta name="theme-color" content="#0f766e">
+    <meta property="og:title" content="沖繩 5天4夜 自駕行程（地圖版）">
+    <meta property="og:description" content="沖繩 5天4夜 自駕行程規劃，含每日晴天/雨天路線切換、Leaflet 互動地圖、Google 地圖導航連結。">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="沖繩 5天4夜 自駕行程（地圖版）">
+    <meta name="twitter:description" content="沖繩 5天4夜 自駕行程規劃，含每日晴天/雨天路線切換、Leaflet 互動地圖、Google 地圖導航連結。">
+    <title>沖繩 5天4夜 自駕行程（地圖版）</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+        :root {
+            --ocean: #0f766e;
+            --ocean-light: #14b8a6;
+            --sky: #0ea5e9;
+            --sand: #fef3c7;
+            --coral: #f97316;
+            --ink: #1e293b;
+            --ink-soft: #475569;
+            --bg: #f8fafc;
+            --rain: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--ink);
+            background: var(--bg);
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        html {
+            overflow-x: hidden;
+        }
+
+        /* Sticky wrapper for header + tabs */
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+        }
+
+        @media (min-width: 768px) {
+            .sticky-wrapper {
+                max-width: 700px;
+                margin: 0 auto;
+            }
+            .header { border-radius: 0 0 12px 12px; }
+            .tab-strip { border-radius: 0 0 12px 12px; }
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%);
+            color: #fff;
+            padding: 0.8rem 1rem;
+            box-shadow: 0 4px 12px rgba(15,118,110,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .header-left { flex: 1; min-width: 0; }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .header-sub {
+            font-size: 0.78rem;
+            opacity: 0.85;
+            margin-top: 0.15rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .header-btn:hover, .header-btn:active {
+            background: rgba(255,255,255,0.35);
+        }
+
+        /* Theme toggle icons: light mode shows sun, dark mode shows moon */
+        .theme-toggle-icon { display: none; }
+        .theme-toggle-icon.icon-sun { display: block; }
+        html.dark .theme-toggle-icon.icon-sun { display: none; }
+        html.dark .theme-toggle-icon.icon-moon { display: block; }
+
+        /* Tab strip */
+        .tab-strip {
+            display: flex;
+            gap: 0.3rem;
+            padding: 0.5rem 0.75rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab-strip::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            flex-shrink: 0;
+            padding: 0.5rem 0.9rem;
+            border: 1.5px solid #cbd5e1;
+            background: #fff;
+            color: var(--ink-soft);
+            border-radius: 9999px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--ocean), var(--sky));
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(15,118,110,0.3);
+        }
+
+        .tab-btn.rainy-tab.active {
+            background: linear-gradient(135deg, var(--rain), var(--sky));
+        }
+
+        /* Day panel */
+        .day-panel {
+            display: none;
+            padding: 0.75rem;
+            padding-bottom: 2rem;
+        }
+
+        .day-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Map */
+        .map-container {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 8px 24px -16px rgba(15,23,42,0.4);
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+
+        .map-wrap {
+            height: 300px;
+            width: 100%;
+        }
+
+        .map-skeleton {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Map legend */
+        .map-legend {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 900;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 10px;
+            padding: 0.5rem 0.6rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 160px;
+        }
+
+        .map-legend h4 {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 0.3rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-bottom: 0.2rem;
+            font-size: 0.68rem;
+            color: var(--ink-soft);
+        }
+
+        .legend-item:last-child { margin-bottom: 0; }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 1.5px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Locate button */
+        .map-locate-btn {
+            position: absolute;
+            bottom: 40px;
+            right: 8px;
+            z-index: 900;
+            width: 36px;
+            height: 36px;
+            background: #fff;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .map-locate-btn:hover { background: #f1f5f9; }
+
+        .map-locate-btn svg {
+            width: 18px;
+            height: 18px;
+            color: var(--ocean);
+        }
+
+        /* Collapsible timeline */
+        .timeline-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 12px -8px rgba(15,23,42,0.3);
+        }
+
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            padding: 0 0 0.5rem;
+        }
+
+        .timeline-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0;
+            color: var(--ink);
+        }
+
+        .timeline-toggle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .timeline-toggle svg {
+            width: 14px;
+            height: 14px;
+            color: var(--ink-soft);
+            transition: transform 0.2s;
+        }
+
+        .timeline-card.collapsed .timeline-toggle svg {
+            transform: rotate(-90deg);
+        }
+
+        .timeline-body {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.2s ease;
+        }
+
+        .timeline-card.collapsed .timeline-body {
+            max-height: 0 !important;
+            opacity: 0;
+            margin-top: 0;
+        }
+
+        .timeline-card .timeline-body {
+            max-height: 2000px;
+            opacity: 1;
+            margin-top: 0;
+        }
+
+        /* Timeline items with numbered vertical axis */
+        .timeline-body {
+            counter-reset: timeline-counter;
+            padding-left: 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            display: flex;
+            gap: 0.75rem;
+            counter-increment: timeline-counter;
+            padding-bottom: 1rem;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        /* Left column: number circle + vertical line */
+        .timeline-item::before {
+            content: counter(timeline-counter);
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ocean);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 800;
+            position: relative;
+            z-index: 2;
+            margin-top: 0.15rem;
+        }
+
+        /* Type-specific circle colors */
+        .timeline-item[data-type="car"]::before { background: #475569; }
+        .timeline-item[data-type="hotel"]::before { background: #8b5cf6; }
+        .timeline-item[data-type="food"]::before { background: #f97316; }
+        .timeline-item[data-type="shopping"]::before { background: #0ea5e9; }
+        .timeline-item[data-type="beach"]::before { background: #06b6d4; }
+        .timeline-item[data-type="warn"]::before { background: #dc2626; }
+        .timeline-item[data-type="sunset"]::before { background: #f59e0b; }
+        .timeline-item[data-type="temple"]::before { background: #0f766e; }
+        .timeline-item[data-type="island"]::before { background: #06b6d4; }
+        .timeline-item[data-type="aquarium"]::before { background: #0f766e; }
+        .timeline-item[data-type="market"]::before { background: #f97316; }
+        .timeline-item[data-type="outlet"]::before { background: #0ea5e9; }
+        .timeline-item[data-type="culture"]::before { background: #0f766e; }
+        .timeline-item[data-type="park"]::before { background: #22c55e; }
+        .timeline-item[data-type="fuel"]::before { background: #64748b; }
+        .timeline-item[data-type="airport"]::before { background: #ef4444; }
+
+        /* Vertical connecting line */
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 13px;
+            top: 32px;
+            bottom: 0;
+            width: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        /* Right column: time + content */
+        .timeline-content {
+            flex: 1;
+            min-width: 0;
+            padding-top: 0.1rem;
+        }
+
+        .timeline-time {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--ocean);
+            margin-bottom: 0.15rem;
+            letter-spacing: 0.02em;
+        }
+
+        .timeline-item[data-type="car"] .timeline-time { color: #475569; }
+        .timeline-item[data-type="warn"] .timeline-time { color: #dc2626; }
+
+        .timeline-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 0.15rem;
+            line-height: 1.3;
+        }
+
+        .timeline-desc {
+            font-size: 0.82rem;
+            color: var(--ink-soft);
+            line-height: 1.4;
+            margin-bottom: 0.2rem;
+        }
+
+        .timeline-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--ocean);
+            text-decoration: none;
+            padding: 0.15rem 0.4rem;
+            border-radius: 6px;
+            background: rgba(15,118,110,0.08);
+            transition: background 0.2s;
+        }
+
+        .timeline-link:hover { background: rgba(15,118,110,0.15); }
+
+        /* KPI row */
+        .kpi-row {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.6rem;
+        }
+
+        .kpi {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--ink-soft);
+        }
+
+        /* Mode toggle */
+        .mode-toggle {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 0.55rem;
+            border: 1.5px solid #cbd5e1;
+            background: #fff;
+            color: var(--ink-soft);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        .mode-btn.active {
+            background: var(--ocean);
+            color: #fff;
+            border-color: var(--ocean);
+        }
+
+        .mode-btn.active[data-mode="rainy"] {
+            background: linear-gradient(135deg, var(--rain), var(--sky));
+            border-color: var(--rain);
+        }
+
+        /* Warning card */
+        .warn-card {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 10px;
+            padding: 0.65rem 0.8rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            color: #9a3412;
+            line-height: 1.4;
+        }
+
+        .warn-card strong {
+            color: #c2410c;
+        }
+
+        /* Route selector */
+        .route-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .route-card {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .route-card.active {
+            border-color: var(--ocean);
+            box-shadow: 0 4px 12px rgba(15,118,110,0.2);
+        }
+
+        .route-card h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .route-card p {
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+            line-height: 1.3;
+        }
+
+        .route-badge {
+            display: inline-block;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            margin-right: 0.3rem;
+        }
+
+        .route-a .route-badge { background: #dcfce7; color: #166534; }
+        .route-b .route-badge { background: #e0f2fe; color: #075985; }
+
+        /* Rainy section */
+        .rainy-section {
+            border-left: 3px solid var(--sky);
+            padding-left: 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .rainy-section h3 {
+            color: var(--sky);
+            font-size: 0.9rem;
+        }
+
+        /* Offline banner */
+        .offline-banner {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fef3c7;
+            border-top: 2px solid #f59e0b;
+            padding: 0.7rem 1rem;
+            z-index: 10000;
+            font-size: 0.82rem;
+            color: #92400e;
+            text-align: center;
+        }
+
+        .offline-banner.show { display: block; }
+
+        /* Share modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            max-width: 360px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .modal-btn {
+            padding: 0.8rem;
+            border: 1.5px solid #e2e8f0;
+            background: #fff;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .modal-btn:hover { background: #f8fafc; }
+
+        .modal-btn.primary {
+            background: var(--ocean);
+            color: #fff;
+            border-color: var(--ocean);
+        }
+
+        .modal-close {
+            margin-top: 0.75rem;
+            width: 100%;
+            padding: 0.6rem;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--ink);
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 10002;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Leaflet custom */
+        .leaflet-control-zoom {
+            z-index: 800 !important;
+        }
+        .leaflet-control-attribution {
+            z-index: 800 !important;
+        }
+        .leaflet-control-zoom a,
+        .leaflet-control-zoom {
+            z-index: 800 !important;
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .leaflet-popup-content {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 0.88rem;
+            line-height: 1.4;
+            margin: 0.5rem 0.75rem;
+        }
+
+        .popup-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .popup-desc {
+            color: var(--ink-soft);
+            font-size: 0.82rem;
+        }
+
+        .popup-link {
+            display: inline-block;
+            margin-top: 0.3rem;
+            color: var(--ocean);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.82rem;
+        }
+
+        /* Info section */
+        .info-section {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.35rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.82rem;
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-label { color: var(--ink-soft); }
+        .info-value { font-weight: 600; color: var(--ink); }
+
+        /* Hotel cards */
+        .hotel-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .hotel-row:last-child { border-bottom: none; }
+
+        .hotel-day-badge {
+            background: var(--ocean);
+            color: #fff;
+            border-radius: 6px;
+            padding: 0.3rem 0.45rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-align: center;
+            min-width: 50px;
+            line-height: 1.3;
+        }
+
+        .hotel-info { flex: 1; }
+        .hotel-name { font-size: 0.85rem; font-weight: 600; }
+        .hotel-loc { font-size: 0.75rem; color: var(--ink-soft); }
+
+        @media (max-width: 380px) {
+            .tab-btn { font-size: 0.82rem; padding: 0.45rem 0.75rem; }
+            .map-wrap { height: 250px; }
+            .map-legend { max-width: 140px; padding: 0.4rem 0.5rem; }
+            .map-legend h4 { font-size: 0.68rem; }
+            .legend-item { font-size: 0.62rem; }
+            .timeline-title { font-size: 0.88rem; }
+            .timeline-time { font-size: 0.78rem; }
+            .timeline-desc { font-size: 0.78rem; }
+            .timeline-link { font-size: 0.75rem; }
+            .kpi { font-size: 0.72rem; }
+            .mode-btn { font-size: 0.82rem; }
+        }
+
+        @media (min-width: 768px) {
+            .map-wrap { height: 400px; }
+            .day-panel { max-width: 700px; margin: 0 auto; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+            .map-skeleton { animation: none; background: #f1f5f9; }
+        }
+
+        /* Route card active touch feedback */
+        .route-card:active {
+            transform: scale(0.97);
+            background: #f0fdfa;
+        }
+
+        /* Dark mode support via .dark class */
+        html.dark {
+            --bg: #0f172a;
+            --ink: #e2e8f0;
+            --ink-soft: #94a3b8;
+        }
+        html.dark body { background: var(--bg); }
+        html.dark .tab-strip { background: #1e293b; border-color: #334155; }
+        html.dark .tab-btn { background: #1e293b; color: var(--ink-soft); border-color: #475569; }
+        html.dark .tab-btn.active { background: linear-gradient(135deg, var(--ocean), var(--sky)); color: #fff; border-color: transparent; }
+        html.dark .tab-btn.rainy-tab.active { background: linear-gradient(135deg, var(--rain), var(--sky)); }
+        html.dark .map-container { border-color: #334155; }
+        html.dark .map-legend { background: rgba(30,41,59,0.95); }
+        html.dark .map-legend h4 { color: var(--ink); }
+        html.dark .legend-item { color: var(--ink-soft); }
+        html.dark .map-locate-btn { background: #1e293b; }
+        html.dark .map-locate-btn:hover { background: #334155; }
+        html.dark .timeline-card { background: #1e293b; border-color: #334155; }
+        html.dark .timeline-header h3 { color: var(--ink); }
+        html.dark .timeline-toggle { background: #334155; }
+        html.dark .timeline-toggle svg { color: var(--ink-soft); }
+        html.dark .timeline-item::after { background: #334155; }
+        html.dark .timeline-time { color: var(--ocean-light); }
+        html.dark .timeline-item[data-type="car"] .timeline-time { color: #94a3b8; }
+        html.dark .timeline-item[data-type="warn"] .timeline-time { color: #f87171; }
+        html.dark .timeline-title { color: var(--ink); }
+        html.dark .timeline-desc { color: var(--ink-soft); }
+        html.dark .timeline-link { background: rgba(20,184,166,0.15); color: var(--ocean-light); }
+        html.dark .timeline-link:hover { background: rgba(20,184,166,0.25); }
+        html.dark .kpi { background: #1e293b; border-color: #334155; color: var(--ink-soft); }
+        html.dark .mode-btn { background: #1e293b; color: var(--ink-soft); border-color: #475569; }
+        html.dark .mode-btn.active { background: var(--ocean); color: #fff; border-color: var(--ocean); }
+        html.dark .mode-btn.active[data-mode="rainy"] { background: linear-gradient(135deg, var(--rain), var(--sky)); border-color: var(--rain); }
+        html.dark .warn-card { background: #451a03; border-color: #9a3412; color: #fdba74; }
+        html.dark .warn-card strong { color: #fdba74; }
+        html.dark .route-card { background: #1e293b; border-color: #334155; }
+        html.dark .route-card.active { border-color: var(--ocean); }
+        html.dark .route-card h4 { color: var(--ink); }
+        html.dark .route-card p { color: var(--ink-soft); }
+        html.dark .route-card:active { background: #334155; }
+        html.dark .info-section { background: #1e293b; border-color: #334155; }
+        html.dark .info-section h3 { color: var(--ink); }
+        html.dark .info-row { border-color: #334155; }
+        html.dark .info-label { color: var(--ink-soft); }
+        html.dark .info-value { color: var(--ink); }
+        html.dark .hotel-day-badge { color: #fff; }
+        html.dark .hotel-name { color: var(--ink); }
+        html.dark .hotel-loc { color: var(--ink-soft); }
+        html.dark .modal { background: #1e293b; }
+        html.dark .modal h3 { color: var(--ink); }
+        html.dark .modal-btn { background: #1e293b; border-color: #334155; color: var(--ink); }
+        html.dark .modal-btn:hover { background: #334155; }
+        html.dark .modal-btn.primary { background: var(--ocean); color: #fff; border-color: var(--ocean); }
+        html.dark .modal-close { background: #334155; color: var(--ink); }
+        html.dark .offline-banner { background: #451a03; border-color: #f59e0b; color: #fdba74; }
+        html.dark .rainy-section h3 { color: var(--sky); }
+
+        /* Light mode via .light class */
+        html.light {
+            --bg: #f8fafc;
+            --ink: #1e293b;
+            --ink-soft: #475569;
+        }
+        html.light body { background: var(--bg); }
+        html.light .tab-strip { background: #fff; border-color: #e2e8f0; }
+        html.light .tab-btn { background: #fff; color: var(--ink-soft); border-color: #cbd5e1; }
+        html.light .tab-btn.active { background: linear-gradient(135deg, var(--ocean), var(--sky)); color: #fff; border-color: transparent; }
+        html.light .tab-btn.rainy-tab.active { background: linear-gradient(135deg, var(--rain), var(--sky)); }
+        html.light .map-container { border-color: #e2e8f0; }
+        html.light .map-legend { background: rgba(255,255,255,0.95); }
+        html.light .map-legend h4 { color: var(--ink); }
+        html.light .legend-item { color: var(--ink-soft); }
+        html.light .map-locate-btn { background: #fff; }
+        html.light .map-locate-btn:hover { background: #f1f5f9; }
+        html.light .timeline-card { background: #fff; border-color: #e2e8f0; }
+        html.light .timeline-header h3 { color: var(--ink); }
+        html.light .timeline-toggle { background: #f1f5f9; }
+        html.light .timeline-toggle svg { color: var(--ink-soft); }
+        html.light .timeline-item::after { background: #e2e8f0; }
+        html.light .timeline-time { color: var(--ocean); }
+        html.light .timeline-item[data-type="car"] .timeline-time { color: #475569; }
+        html.light .timeline-item[data-type="warn"] .timeline-time { color: #dc2626; }
+        html.light .timeline-title { color: var(--ink); }
+        html.light .timeline-desc { color: var(--ink-soft); }
+        html.light .timeline-link { background: rgba(15,118,110,0.08); color: var(--ocean); }
+        html.light .timeline-link:hover { background: rgba(15,118,110,0.15); }
+        html.light .kpi { background: #fff; border-color: #e2e8f0; color: var(--ink-soft); }
+        html.light .mode-btn { background: #fff; color: var(--ink-soft); border-color: #cbd5e1; }
+        html.light .mode-btn.active { background: var(--ocean); color: #fff; border-color: var(--ocean); }
+        html.light .mode-btn.active[data-mode="rainy"] { background: linear-gradient(135deg, var(--rain), var(--sky)); border-color: var(--rain); }
+        html.light .warn-card { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+        html.light .warn-card strong { color: #c2410c; }
+        html.light .route-card { background: #fff; border-color: #e2e8f0; }
+        html.light .route-card.active { border-color: var(--ocean); }
+        html.light .route-card h4 { color: var(--ink); }
+        html.light .route-card p { color: var(--ink-soft); }
+        html.light .route-card:active { background: #f0fdfa; }
+        html.light .info-section { background: #fff; border-color: #e2e8f0; }
+        html.light .info-section h3 { color: var(--ink); }
+        html.light .info-row { border-color: #f1f5f9; }
+        html.light .info-label { color: var(--ink-soft); }
+        html.light .info-value { color: var(--ink); }
+        html.light .hotel-day-badge { color: #fff; }
+        html.light .hotel-name { color: var(--ink); }
+        html.light .hotel-loc { color: var(--ink-soft); }
+        html.light .modal { background: #fff; }
+        html.light .modal h3 { color: var(--ink); }
+        html.light .modal-btn { background: #fff; border-color: #e2e8f0; color: var(--ink); }
+        html.light .modal-btn:hover { background: #f8fafc; }
+        html.light .modal-btn.primary { background: var(--ocean); color: #fff; border-color: var(--ocean); }
+        html.light .modal-close { background: #f1f5f9; color: var(--ink); }
+        html.light .offline-banner { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+        html.light .rainy-section h3 { color: var(--sky); }
+
+        /* Print styles */
+        @media print {
+            .sticky-wrapper { position: static; }
+            .header { position: static; box-shadow: none; }
+            .header-actions { display: none; }
+            .tab-strip { position: static; overflow: visible; }
+            .tab-btn { display: none; }
+            .tab-btn.active { display: flex; }
+            .day-panel { display: block !important; padding: 0; page-break-inside: avoid; }
+            .day-panel:not(.active) { display: none !important; }
+            .map-container { break-inside: avoid; }
+            .map-wrap { height: 200px !important; }
+            .map-locate-btn, .map-skeleton { display: none !important; }
+            .mode-toggle { display: none; }
+            .day-mode { display: block !important; }
+            .day-mode[style*="display: none"] { display: block !important; }
+            .timeline-card { break-inside: avoid; box-shadow: none; }
+            .timeline-toggle { display: none; }
+            .timeline-body { max-height: none !important; opacity: 1 !important; }
+            .offline-banner, .modal-overlay, .toast { display: none !important; }
+            .route-content { display: block !important; }
+            .route-content[style*="display: none"] { display: block !important; }
+            body { background: #fff; color: #000; }
+            a { color: #000; }
+            .timeline-link::after { content: " (" attr(href) ")"; font-size: 0.6rem; color: #666; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sticky-wrapper">
+        <header class="header">
+            <div class="header-left">
+                <h1>沖繩 5天4夜 自駕行程</h1>
+                <p class="header-sub">05/14（四）→ 05/18（一） ｜ 4 位成人</p>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" id="themeToggle" aria-label="切換深色/淺色模式">
+                    <svg class="theme-toggle-icon icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg>
+                    <svg class="theme-toggle-icon icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <nav class="tab-strip" role="tablist" aria-label="每日頁籤">
+            <button class="tab-btn active" data-target="day1" role="tab" aria-selected="true">Day 1 · 5/14</button>
+            <button class="tab-btn" data-target="day2" role="tab" aria-selected="false">Day 2 · 5/15</button>
+            <button class="tab-btn" data-target="day3" role="tab" aria-selected="false">Day 3 · 5/16</button>
+            <button class="tab-btn" data-target="day4" role="tab" aria-selected="false">Day 4 · 5/17</button>
+            <button class="tab-btn" data-target="day5" role="tab" aria-selected="false">Day 5 · 5/18</button>
+            <button class="tab-btn rainy-tab" data-target="rainy" role="tab" aria-selected="false">🌧️ 雨天</button>
+        </nav>
+    </div>
+
+    <main>
+        <!-- Day 1 -->
+        <div class="day-panel active" id="day1">
+            <div class="kpi-row">
+                <span class="kpi">🚗 駕車：0 小時（無自駕）</span>
+            </div>
+
+            <div class="map-container">
+                <div class="map-skeleton">載入地圖中...</div>
+                <div class="map-legend">
+                    <h4>圖例</h4>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>機場</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6"></span>飯店</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#f97316"></span>美食</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0f766e"></span>景點</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0ea5e9"></span>購物</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span>海灘/島嶼</div>
+                </div>
+                <div class="map-wrap" id="map-day1"></div>
+                <button class="map-locate-btn" aria-label="回到目前位置">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
+                </button>
+            </div>
+
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-day="day1" data-mode="sunny">☀️ 晴天版</button>
+                <button class="mode-btn" data-day="day1" data-mode="rainy">🌧️ 雨天版</button>
+            </div>
+
+            <div class="day-mode" data-day-mode="day1-sunny">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>📍 那霸市區夜遊</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="car">
+                        <div class="timeline-content">
+                            <div class="timeline-time">17:20</div>
+                            <div class="timeline-title">抵達那霸機場</div>
+                            <div class="timeline-desc">辦理入境手續，領取行李</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=那覇空港" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">18:20</div>
+                            <div class="timeline-title">搭單軌到牧志站</div>
+                            <div class="timeline-desc">單軌電車約 15 分鐘</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="hotel">
+                        <div class="timeline-content">
+                            <div class="timeline-time">18:40</div>
+                            <div class="timeline-title">入住沖繩南西觀光飯店</div>
+                            <div class="timeline-desc">放行李、稍作休息</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=沖縄南西観光ホテル" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">19:00</div>
+                            <div class="timeline-title">逛國際通</div>
+                            <div class="timeline-desc">伴手禮、藥妝、逛街</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=国際通り 那覇" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="food">
+                        <div class="timeline-content">
+                            <div class="timeline-time">20:30</div>
+                            <div class="timeline-title">晚餐</div>
+                            <div class="timeline-desc">第一牧志市場海鮮 / 琉球之牛 / 居酒屋</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=第一牧志公設市場 那覇市" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="warn-card">
+                    ⚠️ <strong>注意</strong>：國際通的伴手禮店與市場約 20:30 打烊，建議「先採買逛街，再吃晚餐」。
+                </div>
+            </div>
+
+            <div class="day-mode" data-day-mode="day1-rainy" style="display:none">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>🌧️ 雨天版：室內採買 + 晚餐</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">下午</div>
+                            <div class="timeline-title">DFS 或國際通室內商場</div>
+                            <div class="timeline-desc">伴手禮、藥妝集中採買</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="food">
+                        <div class="timeline-content">
+                            <div class="timeline-time">晚餐</div>
+                            <div class="timeline-title">暖暮拉麵 / 88 牛排</div>
+                            <div class="timeline-desc">避免長時間淋雨移動</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 2 -->
+        <div class="day-panel" id="day2">
+            <div class="kpi-row">
+                <span class="kpi">🚗 駕車：約 2.0-2.5 小時</span>
+            </div>
+
+            <div class="map-container">
+                <div class="map-skeleton">載入地圖中...</div>
+                <div class="map-legend">
+                    <h4>圖例</h4>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>機場</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6"></span>飯店</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#f97316"></span>美食</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0f766e"></span>景點</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0ea5e9"></span>購物</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span>海灘/島嶼</div>
+                </div>
+                <div class="map-wrap" id="map-day2"></div>
+                <button class="map-locate-btn" aria-label="回到目前位置">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
+                </button>
+            </div>
+
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-day="day2" data-mode="sunny">☀️ 晴天版</button>
+                <button class="mode-btn" data-day="day2" data-mode="rainy">🌧️ 雨天版</button>
+            </div>
+
+            <div class="day-mode" data-day-mode="day2-sunny">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>📍 文青＋購物＋夕陽</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="car">
+                        <div class="timeline-content">
+                            <div class="timeline-time">09:30</div>
+                            <div class="timeline-title">DFS 取車</div>
+                            <div class="timeline-desc">🎯 駕駛一人搭單軌去取車，其他人飯店等候</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">10:30</div>
+                            <div class="timeline-title">港川外人住宅街</div>
+                            <div class="timeline-desc">早午餐、oHacorte 水果塔、Houkiboshi 可麗露</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=港川外人住宅 北谷町" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">13:30</div>
+                            <div class="timeline-title">AEON MALL Rycom</div>
+                            <div class="timeline-desc">下午最熱時段，超大冷氣 Mall 逛街喝咖啡</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=イオンモール沖縄ライカム 北中城村" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="hotel">
+                        <div class="timeline-content">
+                            <div class="timeline-time">15:30</div>
+                            <div class="timeline-title">入住露台花園美濱</div>
+                            <div class="timeline-desc">放行李、稍作休息</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=ホテルテラス美浜 北谷町" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">17:00</div>
+                            <div class="timeline-title">日落海灘 + 美國村</div>
+                            <div class="timeline-desc">絕美沖繩夕陽，晚餐塔可飯或迴轉壽司</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=美浜アメリカンビレッジ 北谷町" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>🍽️ 美食推薦</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="food">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Kijimuna 塔可飯</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=Kijimuna デポットアイランド 北谷町" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="food">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Blue Seal 冰淇淋</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=Blue Seal アイスクリーム アメリカンビレッジ" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="day-mode" data-day-mode="day2-rainy" style="display:none">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>🌧️ 雨天版：中部室內購物日</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">上午</div>
+                            <div class="timeline-title">港川只保留咖啡短停</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">下午</div>
+                            <div class="timeline-title">AEON Rycom 長時間逛街 + 午晚餐</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="food">
+                        <div class="timeline-content">
+                            <div class="timeline-time">晚上</div>
+                            <div class="timeline-title">美國村室內餐廳</div>
+                            <div class="timeline-desc">避免海邊久留</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 3 -->
+        <div class="day-panel" id="day3">
+            <div class="kpi-row">
+                <span class="kpi">🚗 駕車：約 4.5-5.5 小時</span>
+            </div>
+
+            <div class="map-container">
+                <div class="map-skeleton">載入地圖中...</div>
+                <div class="map-legend">
+                    <h4>圖例</h4>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>機場</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6"></span>飯店</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#f97316"></span>美食</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0f766e"></span>景點</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0ea5e9"></span>購物</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span>海灘/島嶼</div>
+                </div>
+                <div class="map-wrap" id="map-day3"></div>
+                <button class="map-locate-btn" aria-label="回到目前位置">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
+                </button>
+            </div>
+
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-day="day3" data-mode="sunny">☀️ 晴天版</button>
+                <button class="mode-btn" data-day="day3" data-mode="rainy">🌧️ 雨天版</button>
+            </div>
+
+            <div class="day-mode" data-day-mode="day3-sunny">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>📍 北部海洋精華</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="car">
+                        <div class="timeline-content">
+                            <div class="timeline-time">09:00</div>
+                            <div class="timeline-title">從美國村出發</div>
+                            <div class="timeline-desc">走沖繩自動車道一路向北</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">10:30</div>
+                            <div class="timeline-title">美麗海水族館</div>
+                            <div class="timeline-desc">黑潮之海大水槽、鯨鯊、海龜</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=美ら海水族館 本部町" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="food">
+                        <div class="timeline-content">
+                            <div class="timeline-time">13:00</div>
+                            <div class="timeline-title">午餐：岸本食堂 / 今歸仁麵</div>
+                            <div class="timeline-desc">週六名店大排長龍，建議 11:30 用餐</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">14:30</div>
+                            <div class="timeline-title">備瀨福木林道</div>
+                            <div class="timeline-desc">海風、陽光與綠色林道單車漫步</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=備瀬のフクギ並木 本部町" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">16:00</div>
+                            <div class="timeline-title">古宇利島</div>
+                            <div class="timeline-desc">超美古宇利大橋、心型岩 Heart Rock</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=古宇利島 今帰仁村" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="car">
+                        <div class="timeline-content">
+                            <div class="timeline-time">18:00</div>
+                            <div class="timeline-title">南返美國村</div>
+                            <div class="timeline-desc">晚餐、休息</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="warn-card">
+                    ⚠️ <strong>注意</strong>：今日為週六，名店必定大排長龍。若肚子餓建議提早於 11:30 用餐，或選擇備案餐廳。
+                </div>
+            </div>
+
+            <div class="day-mode" data-day-mode="day3-rainy" style="display:none">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>🌧️ 雨天版：北部室內保守動線</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">上午</div>
+                            <div class="timeline-title">水族館主體延長停留</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">下午</div>
+                            <div class="timeline-title">海洋博公園室內館舍擇一</div>
+                            <div class="timeline-desc">取消備瀨或古宇利其一，提早回中部</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 4 -->
+        <div class="day-panel" id="day4">
+            <div class="kpi-row">
+                <span class="kpi">🚗 駕車：A 約 3.0h / B 約 2.0h</span>
+            </div>
+
+            <div class="map-container">
+                <div class="map-skeleton">載入地圖中...</div>
+                <div class="map-legend">
+                    <h4>圖例</h4>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>機場</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6"></span>飯店</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#f97316"></span>美食</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0f766e"></span>景點</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0ea5e9"></span>購物</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span>海灘/島嶼</div>
+                </div>
+                <div class="map-wrap" id="map-day4"></div>
+                <button class="map-locate-btn" aria-label="回到目前位置">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
+                </button>
+            </div>
+
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-day="day4" data-mode="sunny">☀️ 晴天版</button>
+                <button class="mode-btn" data-day="day4" data-mode="rainy">🌧️ 雨天版</button>
+            </div>
+
+            <div class="day-mode" data-day-mode="day4-sunny">
+                <div class="route-selector">
+                    <div class="route-card route-a active" data-route="a">
+                        <h4><span class="route-badge">A</span> 文化路線</h4>
+                        <p>沖繩世界 → 系滿魚市場 → Nest 那霸西</p>
+                    </div>
+                    <div class="route-card route-b" data-route="b">
+                        <h4><span class="route-badge">B</span> 海景購物</h4>
+                        <p>PARCO CITY → 館內午餐 → Nest 那霸西</p>
+                    </div>
+                </div>
+
+                <div class="route-content" data-route="a">
+                    <div class="timeline-card">
+                        <div class="timeline-header">
+                            <h3><span class="route-badge">A</span> 文化探索路線</h3>
+                            <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                        </div>
+                        <div class="timeline-body">
+                        <div class="timeline-item" data-type="car">
+                            <div class="timeline-content">
+                                <div class="timeline-time">10:00</div>
+                                <div class="timeline-title">飯店退房</div>
+                                <div class="timeline-desc">離開美國村</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-type="default">
+                            <div class="timeline-content">
+                                <div class="timeline-time">11:00</div>
+                                <div class="timeline-title">沖繩世界文化王國（玉泉洞）</div>
+                                <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=おきなわワールド 玉泉洞 南城市" target="_blank" rel="noopener">📍 開啟導航</a>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-type="food">
+                            <div class="timeline-content">
+                                <div class="timeline-time">13:00</div>
+                                <div class="timeline-title">系滿魚市場吃海鮮午餐</div>
+                                <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=糸満魚市場 糸満市" target="_blank" rel="noopener">📍 開啟導航</a>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-type="hotel">
+                            <div class="timeline-content">
+                                <div class="timeline-time">16:30</div>
+                                <div class="timeline-title">入住 Nest 那霸西</div>
+                                <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=ホテルネスト那覇西 那覇市" target="_blank" rel="noopener">📍 開啟導航</a>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-type="food">
+                            <div class="timeline-content">
+                                <div class="timeline-time">18:00</div>
+                                <div class="timeline-title">Jack's Steak House</div>
+                                <div class="timeline-desc">走路 5 分鐘的沖繩老字號排隊名店</div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="route-content" data-route="b" style="display:none">
+                    <div class="timeline-card">
+                        <div class="timeline-header">
+                            <h3><span class="route-badge">B</span> 西海岸海景血拼路線</h3>
+                            <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                        </div>
+                        <div class="timeline-body">
+                        <div class="timeline-item" data-type="car">
+                            <div class="timeline-content">
+                                <div class="timeline-time">10:00</div>
+                                <div class="timeline-title">飯店退房</div>
+                                <div class="timeline-desc">離開美國村</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-type="default">
+                            <div class="timeline-content">
+                                <div class="timeline-time">11:00</div>
+                                <div class="timeline-title">PARCO CITY 購物中心</div>
+                                <div class="timeline-desc">無敵海景＋爆買</div>
+                                <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=パルコシティ 豊見城市" target="_blank" rel="noopener">📍 開啟導航</a>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-type="food">
+                            <div class="timeline-content">
+                                <div class="timeline-time">13:00</div>
+                                <div class="timeline-title">館內午餐</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-type="hotel">
+                            <div class="timeline-content">
+                                <div class="timeline-time">16:30</div>
+                                <div class="timeline-title">入住 Nest 那霸西</div>
+                                <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=ホテルネスト那覇西 那覇市" target="_blank" rel="noopener">📍 開啟導航</a>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-type="food">
+                            <div class="timeline-content">
+                                <div class="timeline-time">18:00</div>
+                                <div class="timeline-title">Jack's Steak House</div>
+                                <div class="timeline-desc">走路 5 分鐘的沖繩老字號排隊名店</div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="day-mode" data-day-mode="day4-rainy" style="display:none">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>🌧️ 雨天版：室內優先（建議 B）</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">全天</div>
+                            <div class="timeline-title">優先 PARCO CITY 室內行程</div>
+                            <div class="timeline-desc">館內午餐 + 採買，直接進那霸，晚餐選室內餐廳</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 5 -->
+        <div class="day-panel" id="day5">
+            <div class="kpi-row">
+                <span class="kpi">🚗 駕車：約 2.0-3.0 小時</span>
+            </div>
+
+            <div class="map-container">
+                <div class="map-skeleton">載入地圖中...</div>
+                <div class="map-legend">
+                    <h4>圖例</h4>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>機場</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6"></span>飯店</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#f97316"></span>美食</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0f766e"></span>景點</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#0ea5e9"></span>購物</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span>海灘/島嶼</div>
+                </div>
+                <div class="map-wrap" id="map-day5"></div>
+                <button class="map-locate-btn" aria-label="回到目前位置">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
+                </button>
+            </div>
+
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-day="day5" data-mode="sunny">☀️ 晴天版</button>
+                <button class="mode-btn" data-day="day5" data-mode="rainy">🌧️ 雨天版</button>
+            </div>
+
+            <div class="day-mode" data-day-mode="day5-sunny">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>📍 南部收尾 + 還車搭機</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="car">
+                        <div class="timeline-content">
+                            <div class="timeline-time">09:30</div>
+                            <div class="timeline-title">飯店退房</div>
+                            <div class="timeline-desc">4 件 20kg 行李全放車廂，免擠電車</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">10:00</div>
+                            <div class="timeline-title">波上宮 + 波之上海灘</div>
+                            <div class="timeline-desc">沖繩總鎮守，開車僅 3 分鐘</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=波上宮 那覇市" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">11:30</div>
+                            <div class="timeline-title">瀨長島 Umikaji Terrace</div>
+                            <div class="timeline-desc">純白小希臘看飛機，幸福鬆餅當早午餐</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=瀬長島 ウミカジテラス 豊見城市" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">14:00</div>
+                            <div class="timeline-title">Ashibinaa Outlet + iias 豐崎</div>
+                            <div class="timeline-desc">最後的瘋狂買齊</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=あしびなー 豊見城市" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="warn">
+                        <div class="timeline-content">
+                            <div class="timeline-time">16:40</div>
+                            <div class="timeline-title">⛽️ 加油（滿油還車）</div>
+                            <div class="timeline-desc">加紅色的 Regular，收好收據！</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="car">
+                        <div class="timeline-content">
+                            <div class="timeline-time">17:00</div>
+                            <div class="timeline-title">還車 → 機場接駁</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="car">
+                        <div class="timeline-content">
+                            <div class="timeline-time">20:10</div>
+                            <div class="timeline-title">登機返回台中</div>
+                            <div class="timeline-desc">星宇航空 JX313</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="day-mode" data-day-mode="day5-rainy" style="display:none">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <h3>🌧️ 雨天版：機場周邊室內版</h3>
+                        <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    </div>
+                    <div class="timeline-body">
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">上午</div>
+                            <div class="timeline-title">iias + DMM 水族館為主</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-time">下午</div>
+                            <div class="timeline-title">Ashibinaa 視時間二選一</div>
+                            <div class="timeline-desc">預留 30-45 分鐘加油/還車緩衝</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rainy Overview -->
+        <div class="day-panel" id="rainy">
+            <div class="kpi-row">
+                <span class="kpi">🌧️ 以室內景點/商場為主</span>
+                <span class="kpi">🚗 縮短移動、減少濕滑路段</span>
+            </div>
+
+            <div class="timeline-card">
+                <div class="timeline-header">
+                    <h3>雨天策略總覽</h3>
+                    <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="timeline-body">
+                <div class="timeline-item" data-type="default">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Day 1</div>
+                        <div class="timeline-desc">DFS + 國際通室內採買 + 晚餐</div>
+                    </div>
+                </div>
+                <div class="timeline-item" data-type="default">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Day 2</div>
+                        <div class="timeline-desc">AEON Rycom 拉長停留，晚上回美國村室內餐廳</div>
+                    </div>
+                </div>
+                <div class="timeline-item" data-type="default">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Day 3</div>
+                        <div class="timeline-desc">水族館主體延長，減少戶外點位</div>
+                    </div>
+                </div>
+                <div class="timeline-item" data-type="default">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Day 4</div>
+                        <div class="timeline-desc">優先 B 路線（PARCO 室內）+ 那霸室內晚餐</div>
+                    </div>
+                </div>
+                <div class="timeline-item" data-type="default">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Day 5</div>
+                        <div class="timeline-desc">iias + DMM 為主，商場擇一後前往機場</div>
+                    </div>
+                </div>
+                    </div>
+            </div>
+
+            <div class="warn-card">
+                💡 <strong>雨天行車策略</strong>：縮短移動距離、減少濕滑路段，以大型商場/室內景點為主，預留額外緩衝時間。
+            </div>
+        </div>
+    </main>
+
+    <!-- Offline Banner -->
+    <div class="offline-banner" id="offlineBanner">
+        ⚠️ 目前離線中，顯示文字版行程。地圖功能需連網使用。
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js" onerror="window.__leafletFailed=true;"></script>
+    <script>
+        const spotData = {
+            day1: {
+                center: [26.212, 127.680],
+                zoom: 14,
+                spots: [
+                    { lat: 26.1908, lng: 127.6408, title: '那霸機場', name: '那覇空港', type: 'airport', desc: '17:20 抵達' },
+                    { lat: 26.2123, lng: 127.6792, title: '沖繩南西觀光飯店', name: '沖縄南西観光ホテル', type: 'hotel', desc: '18:40 入住' },
+                    { lat: 26.2147, lng: 127.6872, title: '國際通', name: '国際通り 那覇', type: 'shopping', desc: '19:00 逛街' },
+                    { lat: 26.2147, lng: 127.6872, title: '第一牧志市場', name: '第一牧志公設市場 那覇', type: 'market', desc: '20:30 晚餐' },
+                ]
+            },
+            day2: {
+                center: [26.265, 127.760],
+                zoom: 12,
+                spots: [
+                    { lat: 26.2680, lng: 127.7450, title: '港川外人住宅街', name: '港川外人住宅 北谷町', type: 'attraction', desc: '10:30 早午餐' },
+                    { lat: 26.2850, lng: 127.7750, title: 'AEON MALL Rycom', name: 'イオンモール沖縄ライカム 北中城村', type: 'shopping', desc: '13:30 逛街' },
+                    { lat: 26.2580, lng: 127.7550, title: '露台花園美濱', name: 'ホテルテラス美浜 北谷町', type: 'hotel', desc: '15:30 入住' },
+                    { lat: 26.2550, lng: 127.7520, title: '日落海灘 / 美國村', name: '美浜アメリカンビレッジ 北谷町', type: 'sunset', desc: '17:00 夕陽' },
+                ]
+            },
+            day3: {
+                center: [26.690, 127.910],
+                zoom: 11,
+                spots: [
+                    { lat: 26.6936, lng: 127.8747, title: '美麗海水族館', name: '美ら海水族館 本部町', type: 'aquarium', desc: '10:30' },
+                    { lat: 26.6850, lng: 127.8650, title: '備瀨福木林道', name: '備瀬のフクギ並木 本部町', type: 'park', desc: '14:30' },
+                    { lat: 26.6950, lng: 127.9600, title: '古宇利島', name: '古宇利島 今帰仁村', type: 'island', desc: '16:00 大橋 + 心型岩' },
+                ]
+            },
+            day4: {
+                center: [26.190, 127.710],
+                zoom: 12,
+                routes: {
+                    a: [
+                        { lat: 26.1650, lng: 127.7450, title: '沖繩世界（玉泉洞）', name: 'おきなわワールド 玉泉洞 南城市', type: 'culture', desc: '路線 A' },
+                        { lat: 26.1550, lng: 127.7350, title: '系滿魚市場', name: '糸満魚市場 糸満市', type: 'market', desc: '路線 A 午餐' },
+                        { lat: 26.2150, lng: 127.6750, title: 'Nest 那霸西', name: 'ホテルネスト那覇西 那覇市', type: 'hotel', desc: '16:30 入住' },
+                    ],
+                    b: [
+                        { lat: 26.2300, lng: 127.7350, title: 'PARCO CITY', name: 'パルコシティ 豊見城市', type: 'shopping', desc: '路線 B' },
+                        { lat: 26.2150, lng: 127.6750, title: 'Nest 那霸西', name: 'ホテルネスト那覇西 那覇市', type: 'hotel', desc: '16:30 入住' },
+                    ]
+                }
+            },
+            day5: {
+                center: [26.200, 127.650],
+                zoom: 12,
+                spots: [
+                    { lat: 26.2200, lng: 127.6730, title: '波上宮', name: '波上宮 那覇市', type: 'temple', desc: '10:00' },
+                    { lat: 26.1850, lng: 127.6350, title: '瀨長島 Umikaji Terrace', name: '瀬長島 ウミカジテラス 豊見城市', type: 'beach', desc: '11:30' },
+                    { lat: 26.1900, lng: 127.6300, title: 'Ashibinaa Outlet', name: 'あしびなー 豊見城市', type: 'outlet', desc: '14:00' },
+                    { lat: 26.1908, lng: 127.6408, title: '那霸機場', name: '那覇空港', type: 'airport', desc: '20:10 登機' },
+                ]
+            }
+        };
+
+        const maps = {};
+        const skeletonTimers = {};
+        const leafletReady = () => !window.__leafletFailed && typeof L !== 'undefined';
+
+        // Theme toggle: dark / light
+        const themeToggle = document.getElementById('themeToggle');
+        const themes = ['light', 'dark'];
+        let currentTheme = localStorage.getItem('okinawa-theme') || 'light';
+
+        function applyTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('okinawa-theme', theme);
+            document.documentElement.classList.remove('dark', 'light');
+            document.documentElement.classList.add(theme);
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const idx = themes.indexOf(currentTheme);
+            applyTheme(themes[(idx + 1) % themes.length]);
+        });
+
+        applyTheme(currentTheme);
+
+        const markerColors = {
+            airport: { bg: '#ef4444', icon: '#fff' },
+            hotel: { bg: '#8b5cf6', icon: '#fff' },
+            food: { bg: '#f97316', icon: '#fff' },
+            attraction: { bg: '#0f766e', icon: '#fff' },
+            shopping: { bg: '#0ea5e9', icon: '#fff' },
+            car: { bg: '#475569', icon: '#fff' },
+            beach: { bg: '#06b6d4', icon: '#fff' },
+            warn: { bg: '#dc2626', icon: '#fff' },
+            sunset: { bg: '#f59e0b', icon: '#fff' },
+            temple: { bg: '#0f766e', icon: '#fff' },
+            island: { bg: '#06b6d4', icon: '#fff' },
+            aquarium: { bg: '#0f766e', icon: '#fff' },
+            market: { bg: '#f97316', icon: '#fff' },
+            outlet: { bg: '#0ea5e9', icon: '#fff' },
+            culture: { bg: '#0f766e', icon: '#fff' },
+            park: { bg: '#22c55e', icon: '#fff' },
+            fuel: { bg: '#64748b', icon: '#fff' },
+        };
+
+        const markerIcons = {
+            airport: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h5"/><path d="M20 12h-5"/><path d="M12 2v5"/><path d="M12 22v-5"/><path d="M7 7l1.5 1.5"/><path d="M15.5 15.5L17 17"/><path d="M17 7l-1.5 1.5"/><path d="M8.5 15.5L7 17"/></svg>`,
+            hotel: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 22V6"/><path d="M14 22V6"/><path d="M3 22h18"/><path d="M3 10h18"/><path d="M3 6h18"/><path d="M6 2v4"/><path d="M18 2v4"/><rect x="3" y="2" width="18" height="20" rx="2"/></svg>`,
+            food: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+            attraction: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+            shopping: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+            car: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14"/><path d="M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/></svg>`,
+            beach: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2z"/><path d="M12 3v18"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>`,
+            sunset: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10V2"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="M16 6l-4 4-4-4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg>`,
+            warn: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+            fuel: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17"/><path d="M15 11h2a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2"/><path d="M3 22h12"/><rect x="6" y="8" width="6" height="4" rx="1"/></svg>`,
+            temple: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/><path d="M8 5l4-3 4 3"/><path d="M4 22h16"/></svg>`,
+            island: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V10l7-6 7 6v10"/><path d="M9 20v-4h6v4"/></svg>`,
+            aquarium: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z"/><path d="M18 12v.5"/><path d="M16 17.93c-1.77-1.11-3.27-1.93-5-1.93-1.73 0-3.23.82-5 1.93"/><path d="M2 12h1"/></svg>`,
+            market: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18l-2 13H5L3 3z"/><path d="M3 3h18"/><circle cx="9" cy="20" r="1.5"/><circle cx="15" cy="20" r="1.5"/><path d="M9 16v2"/><path d="M15 16v2"/></svg>`,
+            outlet: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+            culture: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M4 20V8l8-6 8 6v12"/><path d="M9 20v-6h6v6"/><path d="M9 12h6"/></svg>`,
+            park: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14l3-3-3-3"/><path d="M7 14l-3-3 3-3"/><path d="M10 17l-3-3 3-3"/><path d="M14 17l3-3-3-3"/><path d="M12 22V10"/></svg>`,
+        };
+
+        function createMarkerIcon(type, seq) {
+            const colors = markerColors[type] || markerColors.attraction;
+            const svgIcon = markerIcons[type] || markerIcons.attraction;
+
+            return L.divIcon({
+                html: `
+                    <div style="position:relative;width:36px;height:44px;filter:drop-shadow(0 3px 4px rgba(0,0,0,0.25));">
+                        <svg width="36" height="44" viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 0C8.06 0 0 8.06 0 18c0 12.6 18 26 18 26s18-13.4 18-26C36 8.06 27.94 0 18 0z" fill="${colors.bg}" stroke="#fff" stroke-width="2"/>
+                            <circle cx="18" cy="17" r="11" fill="#fff" fill-opacity="0.95"/>
+                        </svg>
+                        <div style="position:absolute;top:7px;left:9px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:${colors.bg};">
+                            ${svgIcon}
+                        </div>
+                        <div style="position:absolute;top:-4px;right:-6px;background:#fff;border:2px solid ${colors.bg};border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:${colors.bg};font-family:'Noto Sans TC',sans-serif;line-height:1;">
+                            ${seq}
+                        </div>
+                    </div>
+                `,
+                className: '',
+                iconSize: [36, 44],
+                iconAnchor: [18, 44],
+                popupAnchor: [0, -36]
+            });
+        }
+
+        function drawRoute(map, spots) {
+            if (spots.length < 2) return;
+
+            const coords = spots.map(s => [s.lat, s.lng]);
+
+            L.polyline(coords, {
+                color: '#0f766e',
+                weight: 4,
+                opacity: 0.7,
+                dashArray: '8, 10',
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+
+            for (let i = 0; i < coords.length - 1; i++) {
+                const from = coords[i];
+                const to = coords[i + 1];
+                const midLat = (from[0] + to[0]) / 2;
+                const midLng = (from[1] + to[1]) / 2;
+                const angle = Math.atan2(to[0] - from[0], to[1] - from[1]) * 180 / Math.PI;
+
+                const arrow = L.marker([midLat, midLng], {
+                    icon: L.divIcon({
+                        html: `<div style="transform:rotate(${-angle + 90}deg);width:16px;height:16px;display:flex;align-items:center;justify-content:center;">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 2L14 10H2L8 2Z" fill="#0f766e" stroke="#fff" stroke-width="1.5"/>
+                            </svg>
+                        </div>`,
+                        className: '',
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                    }),
+                    interactive: false
+                }).addTo(map);
+            }
+        }
+
+        function hideSkeleton(dayId) {
+            if (skeletonTimers[dayId]) {
+                clearTimeout(skeletonTimers[dayId]);
+                delete skeletonTimers[dayId];
+            }
+            const container = document.getElementById(`map-${dayId}`);
+            if (container) {
+                const skeleton = container.parentElement.querySelector('.map-skeleton');
+                if (skeleton) skeleton.style.display = 'none';
+            }
+        }
+
+        function showError(dayId, msg) {
+            hideSkeleton(dayId);
+            const container = document.getElementById(`map-${dayId}`);
+            if (!container) return;
+            if (container.parentElement.querySelector('.map-error')) return;
+            const errDiv = document.createElement('div');
+            errDiv.className = 'map-error';
+            errDiv.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f8fafc;color:#475569;font-size:0.8rem;text-align:center;padding:1rem;';
+            errDiv.innerHTML = `<p style="font-weight:600;margin-bottom:0.3rem;">⚠️ 地圖載入失敗</p><p style="font-size:0.7rem;color:#64748b;">${msg}</p>`;
+            container.parentElement.appendChild(errDiv);
+        }
+
+        function initMap(dayId, route) {
+            if (maps[dayId]) return;
+            if (!leafletReady()) {
+                showError(dayId, 'Leaflet 函式庫載入失敗，請檢查網路連線。');
+                return;
+            }
+
+            const data = spotData[dayId];
+            if (!data) return;
+
+            let spots = data.spots;
+            if (data.routes) {
+                spots = data.routes[route || 'a'] || data.routes.a;
+            }
+            if (!spots || spots.length === 0) {
+                hideSkeleton(dayId);
+                return;
+            }
+
+            const container = document.getElementById(`map-${dayId}`);
+            if (!container) return;
+
+            try {
+                const map = L.map(container, {
+                    zoomControl: false,
+                    attributionControl: true
+                }).setView(data.center, data.zoom);
+
+                L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO',
+                    maxZoom: 19
+                }).addTo(map);
+
+                spots.forEach((spot, i) => {
+                    const marker = L.marker([spot.lat, spot.lng], {
+                        icon: createMarkerIcon(spot.type, i + 1)
+                    }).addTo(map);
+
+                    marker.bindPopup(`
+                        <div class="popup-title">${spot.title}</div>
+                        <div class="popup-desc">${spot.desc}</div>
+                        <a class="popup-link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name || spot.title)}" target="_blank" rel="noopener">📍 開啟 Google Maps 導航</a>
+                    `);
+                });
+
+                drawRoute(map, spots);
+
+                maps[dayId] = { map, route: route || 'a' };
+
+                hideSkeleton(dayId);
+
+                setTimeout(() => {
+                    map.invalidateSize();
+                    const group = L.featureGroup(map.getLayers().filter(l => l instanceof L.Marker || l instanceof L.Polyline));
+                    if (group.getLayers().length > 0) {
+                        const bounds = group.getBounds();
+                        const padding = spots.length <= 2 ? [40, 40] : [20, 20];
+                        const maxZoom = spots.length <= 2 ? 14 : 15;
+                        map.fitBounds(bounds, { padding, maxZoom });
+                    }
+                }, 200);
+            } catch (e) {
+                showError(dayId, e.message || '未知錯誤');
+            }
+        }
+
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const panels = document.querySelectorAll('.day-panel');
+
+        function setActiveDay(targetId) {
+            tabBtns.forEach(btn => {
+                const isActive = btn.dataset.target === targetId;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-selected', String(isActive));
+            });
+
+            panels.forEach(panel => {
+                const isActive = panel.id === targetId;
+                panel.classList.toggle('active', isActive);
+            });
+
+            if (spotData[targetId]) {
+                setTimeout(() => initMap(targetId), 100);
+            }
+        }
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => setActiveDay(btn.dataset.target));
+        });
+
+        // Mode toggle
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const day = btn.dataset.day;
+                const mode = btn.dataset.mode;
+
+                document.querySelectorAll(`.mode-btn[data-day="${day}"]`).forEach(b => {
+                    b.classList.toggle('active', b.dataset.mode === mode);
+                });
+
+                document.querySelectorAll(`[data-day-mode="${day}-sunny"]`).forEach(el => {
+                    el.style.display = mode === 'sunny' ? '' : 'none';
+                });
+                document.querySelectorAll(`[data-day-mode="${day}-rainy"]`).forEach(el => {
+                    el.style.display = mode === 'rainy' ? '' : 'none';
+                });
+            });
+        });
+
+        // Route selector for Day 4
+        document.querySelectorAll('.route-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.route-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                const route = card.dataset.route;
+                document.querySelectorAll('.route-content').forEach(el => {
+                    el.style.display = el.dataset.route === route ? '' : 'none';
+                });
+
+                if (maps.day4) {
+                    maps.day4.map.remove();
+                    delete maps.day4;
+                }
+                initMap('day4', route);
+            });
+        });
+
+        // Collapsible timeline cards
+        document.querySelectorAll('.timeline-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const card = header.closest('.timeline-card');
+                card.classList.toggle('collapsed');
+            });
+        });
+
+        // Map locate buttons
+        document.querySelectorAll('.map-locate-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mapContainer = btn.closest('.map-container');
+                const mapWrap = mapContainer.querySelector('.map-wrap');
+                const mapId = mapWrap.id;
+                const dayId = mapId.replace('map-', '');
+                const mapObj = maps[dayId];
+                const map = mapObj ? mapObj.map : null;
+                if (!map || !navigator.geolocation) return;
+
+                btn.style.opacity = '0.5';
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        map.setView([pos.coords.latitude, pos.coords.longitude], 15);
+                        btn.style.opacity = '1';
+                    },
+                    () => {
+                        btn.style.opacity = '1';
+                        showToast('無法取得位置');
+                    },
+                    { enableHighAccuracy: false, timeout: 5000 }
+                );
+            });
+        });
+
+        // Offline detection
+        function updateOnlineStatus() {
+            const banner = document.getElementById('offlineBanner');
+            if (!navigator.onLine) {
+                banner.classList.add('show');
+            } else {
+                banner.classList.remove('show');
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+
+        // Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // Touch swipe for tabs (exclude map area)
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.map-wrap') || e.target.closest('.leaflet-container')) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (e.target.closest('.map-wrap') || e.target.closest('.leaflet-container')) return;
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
+                const activeTab = document.querySelector('.tab-btn.active');
+                if (!activeTab) return;
+                const tabs = Array.from(tabBtns);
+                const idx = tabs.indexOf(activeTab);
+                if (dx < 0 && idx < tabs.length - 1) {
+                    setActiveDay(tabs[idx + 1].dataset.target);
+                } else if (dx > 0 && idx > 0) {
+                    setActiveDay(tabs[idx - 1].dataset.target);
+                }
+            }
+        }, { passive: true });
+
+        // Init first map
+        setTimeout(() => initMap('day1'), 200);
+
+        // Skeleton timeout fallback: hide skeleton after 8s even if map fails
+        Object.keys(spotData).forEach(dayId => {
+            skeletonTimers[dayId] = setTimeout(() => {
+                if (!maps[dayId]) {
+                    hideSkeleton(dayId);
+                }
+            }, 8000);
+        });
+    </script>
+</body>
+</html>
