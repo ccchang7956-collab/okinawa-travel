@@ -408,6 +408,21 @@
         .timeline-item[data-type="fuel"]::before { background: #64748b; }
         .timeline-item[data-type="airport"]::before { background: #ef4444; }
 
+        /* Transit items: no number circle, no counter increment, faded */
+        .timeline-item[data-transit] {
+            opacity: 0.55;
+            font-style: italic;
+        }
+        .timeline-item[data-transit]::before {
+            content: none !important;
+        }
+        .timeline-item[data-transit] {
+            counter-increment: none;
+        }
+        .timeline-item[data-transit]::after {
+            display: none;
+        }
+
         /* Vertical connecting line */
         .timeline-item::after {
             content: '';
@@ -1058,7 +1073,7 @@
                             <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=那覇空港" target="_blank" rel="noopener">📍 開啟導航</a>
                         </div>
                     </div>
-                    <div class="timeline-item" data-type="default">
+                    <div class="timeline-item" data-type="default" data-transit>
                         <div class="timeline-content">
                             <div class="timeline-time">18:20</div>
                             <div class="timeline-title">搭單軌到牧志站</div>
@@ -1288,7 +1303,7 @@
                         <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
                     </div>
                     <div class="timeline-body">
-                    <div class="timeline-item" data-type="car">
+                    <div class="timeline-item" data-type="car" data-transit>
                         <div class="timeline-content">
                             <div class="timeline-time">09:00</div>
                             <div class="timeline-title">從美國村出發</div>
@@ -1326,7 +1341,7 @@
                             <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=古宇利島 今帰仁村" target="_blank" rel="noopener">📍 開啟導航</a>
                         </div>
                     </div>
-                    <div class="timeline-item" data-type="car">
+                    <div class="timeline-item" data-type="car" data-transit>
                         <div class="timeline-content">
                             <div class="timeline-time">18:00</div>
                             <div class="timeline-title">南返美國村</div>
@@ -1413,7 +1428,7 @@
                             <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
                         </div>
                         <div class="timeline-body">
-                        <div class="timeline-item" data-type="car">
+                        <div class="timeline-item" data-type="car" data-transit>
                             <div class="timeline-content">
                                 <div class="timeline-time">10:00</div>
                                 <div class="timeline-title">飯店退房</div>
@@ -1459,7 +1474,7 @@
                             <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
                         </div>
                         <div class="timeline-body">
-                        <div class="timeline-item" data-type="car">
+                        <div class="timeline-item" data-type="car" data-transit>
                             <div class="timeline-content">
                                 <div class="timeline-time">10:00</div>
                                 <div class="timeline-title">飯店退房</div>
@@ -1553,7 +1568,7 @@
                         <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
                     </div>
                     <div class="timeline-body">
-                    <div class="timeline-item" data-type="car">
+                    <div class="timeline-item" data-type="car" data-transit>
                         <div class="timeline-content">
                             <div class="timeline-time">09:30</div>
                             <div class="timeline-title">飯店退房</div>
@@ -1591,7 +1606,7 @@
                             <div class="timeline-desc">加紅色的 Regular，收好收據！</div>
                         </div>
                     </div>
-                    <div class="timeline-item" data-type="car">
+                    <div class="timeline-item" data-type="car" data-transit>
                         <div class="timeline-content">
                             <div class="timeline-time">17:00</div>
                             <div class="timeline-title">還車 → 機場接駁</div>
