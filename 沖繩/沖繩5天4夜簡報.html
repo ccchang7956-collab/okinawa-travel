@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沖繩 5天4夜 自駕行程</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+        :root {
+            --ocean: #0f766e;
+            --ocean-light: #14b8a6;
+            --sky: #0ea5e9;
+            --sand: #fef3c7;
+            --coral: #f97316;
+            --ink: #1e293b;
+            --ink-soft: #475569;
+        }
+
+        .reveal {
+            font-family: 'Noto Sans TC', sans-serif;
+            overflow: hidden;
+        }
+
+        .reveal .slides {
+            text-align: left;
+            overflow: hidden;
+        }
+
+        .reveal .slides section {
+            padding: 1rem 1.5rem;
+            max-height: 100%;
+            box-sizing: border-box;
+        }
+
+        .reveal h1 {
+            font-size: 2em;
+            background: linear-gradient(120deg, var(--ink) 0%, var(--ocean) 48%, var(--sky) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .reveal h2 {
+            font-size: 1.3em;
+            color: var(--ocean);
+            border-bottom: 2px solid var(--ocean-light);
+            padding-bottom: 0.3em;
+            margin-bottom: 0.5em;
+        }
+
+        .reveal h3 {
+            font-size: 1em;
+            color: var(--ink);
+            margin-bottom: 0.3em;
+        }
+
+        .reveal p, .reveal li {
+            font-size: 0.65em;
+            line-height: 1.5;
+            color: var(--ink-soft);
+            margin-bottom: 0.2em;
+        }
+
+        .reveal ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .reveal ul li::before {
+            content: "→ ";
+            color: var(--ocean-light);
+            font-weight: bold;
+        }
+
+        .reveal .slide-number {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 14px;
+            color: var(--ocean);
+        }
+
+        .reveal .controls button {
+            color: var(--ocean);
+        }
+
+        .reveal .progress span {
+            background: linear-gradient(90deg, var(--ocean), var(--sky));
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9));
+            border: 1px solid rgba(148,163,184,0.25);
+            border-radius: 10px;
+            padding: 0.7em;
+            margin-bottom: 0.4em;
+            box-shadow: 0 8px 24px -16px rgba(15,23,42,0.4);
+        }
+
+        .card h3 {
+            margin-bottom: 0.2em;
+            font-size: 0.85em;
+        }
+
+        .card p, .card li {
+            font-size: 0.6em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2em 0.6em;
+            border-radius: 9999px;
+            font-size: 0.55em;
+            font-weight: 700;
+            margin-right: 0.3em;
+            margin-bottom: 0.3em;
+        }
+
+        .badge-main {
+            background: #ccfbf1;
+            color: #0f766e;
+        }
+
+        .badge-alt {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .badge-rain {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 1.5em;
+        }
+
+        .timeline li {
+            position: relative;
+            margin-bottom: 0.3em;
+            font-size: 0.6em;
+        }
+
+        .timeline li::before {
+            content: "";
+            position: absolute;
+            left: -1.5em;
+            top: 0.45em;
+            width: 0.6em;
+            height: 0.6em;
+            border-radius: 50%;
+            background: var(--ocean-light);
+            box-shadow: 0 0 0 3px rgba(20,184,166,0.2);
+        }
+
+        .timeline li:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            left: -1.22em;
+            top: 0.85em;
+            width: 2px;
+            height: calc(100% + 0.1em);
+            background: linear-gradient(180deg, #99f6e4, #bae6fd);
+        }
+
+        .kpi-row {
+            display: flex;
+            gap: 0.4em;
+            flex-wrap: wrap;
+            margin-bottom: 0.5em;
+        }
+
+        .kpi {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3em;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 0.3em 0.6em;
+            font-size: 0.55em;
+            font-weight: 600;
+            color: var(--ink-soft);
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5em;
+        }
+
+        .route-badge {
+            display: inline-block;
+            padding: 0.15em 0.5em;
+            border-radius: 6px;
+            font-size: 0.6em;
+            font-weight: 700;
+            margin-right: 0.3em;
+        }
+
+        .route-a {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .route-b {
+            background: #ecfeff;
+            color: #155e75;
+            border: 1px solid #a5f3fc;
+        }
+
+        .cover-subtitle {
+            font-size: 0.9em;
+            color: var(--ink-soft);
+            margin-top: 0.5em;
+        }
+
+        .cover-meta {
+            font-size: 0.6em;
+            color: var(--ink-soft);
+            margin-top: 1em;
+            opacity: 0.8;
+        }
+
+        .cover-badges {
+            margin-top: 1em;
+        }
+
+        .cover-badges .badge {
+            font-size: 0.6em;
+        }
+
+        .highlight {
+            color: var(--ocean);
+            font-weight: 700;
+        }
+
+        .warning {
+            color: var(--coral);
+            font-weight: 600;
+        }
+
+        .map-link {
+            display: inline-block;
+            padding: 0.3em 0.8em;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            color: #0369a1;
+            text-decoration: none;
+            font-size: 0.6em;
+            font-weight: 600;
+            margin-top: 0.5em;
+        }
+
+        .map-link:hover {
+            background: #e0f2fe;
+        }
+
+        .rainy-section {
+            border-left: 4px solid var(--sky);
+            padding-left: 0.8em;
+            margin-top: 0.6em;
+        }
+
+        .rainy-section h3 {
+            color: var(--sky);
+        }
+
+        .hotel-card {
+            display: grid;
+            grid-template-columns: 65px 1fr;
+            gap: 0.4em;
+            align-items: center;
+        }
+
+        .hotel-day {
+            background: var(--ocean);
+            color: #fff;
+            border-radius: 6px;
+            padding: 0.3em;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.6em;
+            line-height: 1.3;
+        }
+
+        .hotel-name {
+            font-size: 0.65em;
+            font-weight: 600;
+            margin-bottom: 0.1em;
+        }
+
+        .hotel-loc {
+            font-size: 0.5em;
+            color: var(--ink-soft);
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9));
+            border: 1px solid rgba(148,163,184,0.25);
+            border-radius: 10px;
+            padding: 0.5em 0.7em;
+            margin-bottom: 0.35em;
+            box-shadow: 0 8px 24px -16px rgba(15,23,42,0.4);
+        }
+
+        .hotel-day {
+            background: var(--ocean);
+            color: #fff;
+            border-radius: 8px;
+            padding: 0.4em;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.7em;
+        }
+
+        .hotel-name {
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        .hotel-loc {
+            font-size: 0.55em;
+            color: var(--ink-soft);
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Cover -->
+            <section>
+                <h1>沖繩 5天4夜</h1>
+                <p class="cover-subtitle">自駕行程規劃 ｜ 晴天 / 雨天雙版本</p>
+                <div class="cover-badges">
+                    <span class="badge badge-main">每日頁籤切換</span>
+                    <span class="badge badge-main">晴天雨天一鍵切換</span>
+                    <span class="badge badge-alt">Google 地圖導航</span>
+                </div>
+                <div class="cover-meta">
+                    <p>05/14（四）→ 05/18（一） ｜ 4 位成人 ｜ 自駕</p>
+                </div>
+            </section>
+
+            <!-- Flight & Car -->
+            <section>
+                <h2>✈️ 航班與租車</h2>
+                <div class="two-col">
+                    <div class="card">
+                        <h3>去程</h3>
+                        <p><span class="highlight">05/14（四）14:55</span> TPE → 17:20 OKA</p>
+                        <p>泰越捷 VZ</p>
+                    </div>
+                    <div class="card">
+                        <h3>回程</h3>
+                        <p><span class="highlight">05/18（一）20:10</span> OKA → 20:50 RMQ</p>
+                        <p>星宇航空 JX</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>🚗 租車資訊</h3>
+                    <ul>
+                        <li>取車：Day 2 09:30 @ 那霸 DFS</li>
+                        <li>還車：Day 5 17:00 @ 機場周邊營業所</li>
+                        <li class="warning">⚠️ 滿油還車（加紅色 Regular）</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Hotels -->
+            <section>
+                <h2>🏨 住宿安排</h2>
+                <div class="card">
+                    <div class="hotel-card">
+                        <div class="hotel-day">Day 1<br>05/14</div>
+                        <div>
+                            <div class="hotel-name">沖繩南西觀光飯店</div>
+                            <div class="hotel-loc">那霸市區 ｜ 單軌牧志站旁</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="hotel-card">
+                        <div class="hotel-day">Day 2-3<br>05/15-16</div>
+                        <div>
+                            <div class="hotel-name">露台花園美濱渡假村</div>
+                            <div class="hotel-loc">中部北谷町 ｜ 美國村旁</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="hotel-card">
+                        <div class="hotel-day">Day 4<br>05/17</div>
+                        <div>
+                            <div class="hotel-name">那霸西 Nest 飯店</div>
+                            <div class="hotel-loc">那霸市區 ｜ 近旭橋站、波上宮</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Day 1 -->
+            <section>
+                <h2>Day 1 ｜ 05/14（四）</h2>
+                <p class="highlight">輕裝抵達，那霸市區之夜</p>
+                <div class="kpi-row">
+                    <span class="kpi">🚗 駕車：0 小時（無自駕）</span>
+                    <span class="kpi">👣 步行：6,000-9,000 步</span>
+                </div>
+                <div class="card">
+                    <h3>📍 行程時間軸</h3>
+                    <ul class="timeline">
+                        <li>17:20 抵達那霸機場</li>
+                        <li>18:20 搭單軌到牧志站</li>
+                        <li>18:40 入住沖繩南西觀光飯店</li>
+                        <li>19:00 逛國際通</li>
+                        <li>20:30 晚餐（暖暮拉麵 / 88 牛排 / 琉球之牛）</li>
+                    </ul>
+                </div>
+                <div class="card rainy-section">
+                    <h3>🌧️ 雨天版</h3>
+                    <p>DFS + 國際通室內採買 + 晚餐，避免長時間淋雨移動</p>
+                </div>
+            </section>
+
+            <!-- Day 2 -->
+            <section>
+                <h2>Day 2 ｜ 05/15（五）</h2>
+                <p class="highlight">文青小鎮、避暑購物與最美夕陽</p>
+                <div class="kpi-row">
+                    <span class="kpi">🚗 駕車：約 2.0-2.5 小時</span>
+                    <span class="kpi">👣 步行：8,000-12,000 步</span>
+                </div>
+                <div class="card">
+                    <h3>📍 行程時間軸</h3>
+                    <ul class="timeline">
+                        <li>09:30 <span class="warning">🎯 駕駛一人搭單軌去 DFS 取車</span></li>
+                        <li>10:30 港川外人住宅街（早午餐、水果塔）</li>
+                        <li>13:30 AEON Rycom（最熱時段躲冷氣）</li>
+                        <li>15:30 入住露台花園美濱</li>
+                        <li>17:00 日落海灘 + 美國村夜遊</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🍽️ 美食推薦</h3>
+                    <p>Kijimuna 塔可飯 ｜ Blue Seal 冰淇淋 ｜ 浜屋沖繩麵</p>
+                </div>
+                <div class="card rainy-section">
+                    <h3>🌧️ 雨天版</h3>
+                    <p>AEON Rycom 拉長停留，晚上回美國村室內餐廳</p>
+                </div>
+            </section>
+
+            <!-- Day 3 -->
+            <section>
+                <h2>Day 3 ｜ 05/16（六）</h2>
+                <p class="highlight">純淨海洋！經典北部精華</p>
+                <div class="kpi-row">
+                    <span class="kpi">🚗 駕車：約 4.5-5.5 小時</span>
+                    <span class="kpi">👣 步行：7,000-10,000 步</span>
+                </div>
+                <div class="card">
+                    <h3>📍 行程時間軸</h3>
+                    <ul class="timeline">
+                        <li>09:00 從美國村出發，走沖繩自動車道北上</li>
+                        <li>10:30 美麗海水族館（黑潮之海大水槽）</li>
+                        <li>13:00 午餐：岸本食堂 / 今歸仁麵</li>
+                        <li>14:30 備瀨福木林道（綠色林道單車）</li>
+                        <li>16:00 古宇利島（大橋 + 心型岩）</li>
+                        <li>18:00 南返美國村晚餐</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🍽️ 美食推薦</h3>
+                    <p>岸本食堂 ｜ 山原そば ｜ 古宇利蝦蝦飯</p>
+                </div>
+                <div class="card rainy-section">
+                    <h3>🌧️ 雨天版</h3>
+                    <p>水族館主體延長停留，減少戶外點位，取消備瀨或古宇利其一</p>
+                </div>
+            </section>
+
+            <!-- Day 4 -->
+            <section>
+                <h2>Day 4 ｜ 05/17（日）</h2>
+                <p class="highlight">南島風情，一路向南不折返</p>
+                <div class="kpi-row">
+                    <span class="kpi">🚗 駕車：A 約 3.0h / B 約 2.0h</span>
+                    <span class="kpi">👣 步行：7,000-12,000 步</span>
+                </div>
+                <div class="two-col">
+                    <div class="card">
+                        <h3><span class="route-badge route-a">A</span> 文化路線</h3>
+                        <ul class="timeline">
+                            <li>沖繩世界（玉泉洞）</li>
+                            <li>系滿魚市場吃海鮮</li>
+                            <li>入住 Nest 那霸西</li>
+                            <li>晚餐：Jack's Steak</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3><span class="route-badge route-b">B</span> 海景購物路線</h3>
+                        <ul class="timeline">
+                            <li>PARCO CITY（無敵海景）</li>
+                            <li>館內午餐 + 採買</li>
+                            <li>入住 Nest 那霸西</li>
+                            <li>晚餐：Jack's Steak</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card rainy-section">
+                    <h3>🌧️ 雨天版</h3>
+                    <p>優先 B 路線（PARCO 室內時間最多）+ 那霸室內餐廳</p>
+                </div>
+            </section>
+
+            <!-- Day 5 -->
+            <section>
+                <h2>Day 5 ｜ 05/18（一）</h2>
+                <p class="highlight">免扛行李，登機前的完美收尾</p>
+                <div class="kpi-row">
+                    <span class="kpi">🚗 駕車：約 2.0-3.0 小時</span>
+                    <span class="kpi">👣 步行：7,000-11,000 步</span>
+                </div>
+                <div class="card">
+                    <h3>📍 行程時間軸</h3>
+                    <ul class="timeline">
+                        <li>09:30 退房（行李全放車上）</li>
+                        <li>10:00 波上宮 + 波之上海灘</li>
+                        <li>11:30 瀨長島 Umikaji Terrace（看飛機、幸福鬆餅）</li>
+                        <li>14:00 Ashibinaa Outlet + iias 豐崎</li>
+                        <li>16:40 <span class="warning">⛽️ 加油（滿油還車）</span></li>
+                        <li>17:00 還車 → 機場接駁</li>
+                        <li>20:10 登機返回台中</li>
+                    </ul>
+                </div>
+                <div class="card rainy-section">
+                    <h3>🌧️ 雨天版</h3>
+                    <p>iias + DMM 水族館為主，預留 30-45 分鐘加油/還車緩衝</p>
+                </div>
+            </section>
+
+            <!-- Rainy Strategy -->
+            <section>
+                <h2>🌧️ 雨天策略總覽</h2>
+                <div class="card">
+                    <ul>
+                        <li><span class="badge badge-rain">Day 1</span> DFS + 國際通室內採買</li>
+                        <li><span class="badge badge-rain">Day 2</span> AEON Rycom 拉長停留 + 美國村室內餐廳</li>
+                        <li><span class="badge badge-rain">Day 3</span> 水族館延長停留，減少戶外點位</li>
+                        <li><span class="badge badge-rain">Day 4</span> 優先 B 路線（PARCO 室內最多）</li>
+                        <li><span class="badge badge-rain">Day 5</span> iias + DMM 為主，商場擇一後前往機場</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>💡 雨天行車策略</h3>
+                    <ul>
+                        <li>縮短移動距離、減少濕滑路段</li>
+                        <li>以大型商場/室內景點為主</li>
+                        <li>預留額外緩衝時間</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Tips -->
+            <section>
+                <h2>💡 實用提醒</h2>
+                <div class="two-col">
+                    <div class="card">
+                        <h3>⚠️ 注意事項</h3>
+                        <ul>
+                            <li>國際通伴手禮店約 20:30 打烊</li>
+                            <li>週六水族館名店必定大排長龍</li>
+                            <li>還車前務必滿油，收好收據</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>📱 工具連結</h3>
+                        <ul>
+                            <li>Google 地圖路線已內嵌</li>
+                            <li>每日晴天/雨天可一鍵切換</li>
+                            <li>手機觸控滑動即可切換頁籤</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>🎒 行李提醒</h3>
+                    <p>4 件 20kg 大行李，Day 2 取車後直接放車上，Day 5 退房後行李全放車廂，免去擠電車之苦</p>
+                </div>
+            </section>
+
+            <!-- End -->
+            <section>
+                <h1>Have a great trip! 🌊</h1>
+                <p class="cover-subtitle">沖繩 5天4夜 自駕行程</p>
+                <p class="cover-meta">05/14 - 05/18 ｜ 4 位成人</p>
+                <div class="cover-badges">
+                    <span class="badge badge-main">晴天版</span>
+                    <span class="badge badge-rain">雨天版</span>
+                    <span class="badge badge-alt">Google 地圖</span>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            transition: 'slide',
+            transitionSpeed: 'default',
+            backgroundTransition: 'fade',
+            center: true,
+            width: 1200,
+            height: 700,
+            margin: 0.04,
+            minScale: 0.2,
+            maxScale: 1.5,
+            autoSlide: 0,
+            loop: false,
+            autoHeight: false,
+        });
+    </script>
+</body>
+</html>

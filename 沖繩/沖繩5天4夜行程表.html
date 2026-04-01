@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="沖繩 5天4夜 自駕行程規劃，含每日晴天/雨天路線切換、Google 地圖導航連結、景點美食推薦。" />
+    <title>沖繩 5天4夜 自駕行程（每日頁籤版）</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+        :root {
+            --ink: #1e293b;
+            --ink-soft: #475569;
+            --bg: #f8fafc;
+            --brand: #0f766e;
+            --brand-soft: #ccfbf1;
+            --focus: #22d3ee;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--ink);
+            line-height: 1.55;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 10% -5%, #bae6fd 0%, transparent 38%),
+                radial-gradient(circle at 95% 10%, #a7f3d0 0%, transparent 35%),
+                var(--bg);
+        }
+
+        h1, h2, h3, .sora {
+            font-family: 'Sora', 'Noto Sans TC', sans-serif;
+        }
+
+        .glass {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow: 0 18px 40px -30px rgba(15, 23, 42, 0.5);
+        }
+
+        .hero-title {
+            background: linear-gradient(120deg, #0f172a 0%, #0f766e 48%, #0369a1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-sub {
+            max-width: 68ch;
+            font-size: 1.02rem;
+        }
+
+        .tab-strip {
+            border: 1px solid #dbeafe;
+            border-radius: 0.9rem;
+            padding: 0.35rem;
+            background: rgba(241, 245, 249, 0.78);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .tab-scroll {
+            scroll-snap-type: x proximity;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-strip .day-tab {
+            scroll-snap-align: start;
+        }
+
+        .day-tab {
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #334155;
+            transition: all .2s ease;
+            min-height: 44px;
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+
+        #tab-rainy {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+
+        #tab-rainy.active {
+            background: linear-gradient(135deg, #334155, #0ea5e9);
+            color: #ffffff;
+            border-color: transparent;
+        }
+
+        .day-tab:hover {
+            border-color: #14b8a6;
+            transform: translateY(-1px);
+        }
+
+        .day-tab.active {
+            background: linear-gradient(135deg, #0f766e, #0ea5e9);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 10px 24px -12px rgba(15, 118, 110, 0.8);
+        }
+
+        .day-tab:focus-visible,
+        .mode-btn:focus-visible,
+        .link-btn:focus-visible {
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+        }
+
+        .day-panel {
+            display: none;
+        }
+
+        .day-panel.active {
+            display: block;
+            animation: panelIn 0.32s ease;
+        }
+
+        .day-mode {
+            display: none;
+        }
+
+        .day-mode.active {
+            display: block;
+            animation: panelIn 0.28s ease;
+        }
+
+        .mode-btn {
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #334155;
+            border-radius: 0.65rem;
+            min-height: 44px;
+            min-width: 88px;
+            padding: 0.45rem 0.9rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: all .2s ease;
+        }
+
+        .mode-btn.active {
+            background: var(--brand);
+            color: #ffffff;
+            border-color: var(--brand);
+        }
+
+        .mode-btn[data-mode="sunny"]::before {
+            content: "☀";
+            font-size: 0.82rem;
+        }
+
+        .mode-btn[data-mode="rainy"]::before {
+            content: "☔";
+            font-size: 0.82rem;
+        }
+
+        .mode-btn.active[data-mode="sunny"] {
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
+            border-color: #0f766e;
+        }
+
+        .mode-btn.active[data-mode="rainy"] {
+            background: linear-gradient(135deg, #334155, #0ea5e9);
+            border-color: #334155;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.28rem 0.7rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .chip-main {
+            color: #0f766e;
+            background: #ccfbf1;
+        }
+
+        .chip-alt {
+            color: #9a3412;
+            background: #ffedd5;
+        }
+
+        .kpi {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+            border: 1px solid #cbd5e1;
+            border-radius: 0.7rem;
+            padding: 0.5rem 0.7rem;
+            font-size: 0.85rem;
+            color: #334155;
+            font-weight: 600;
+            box-shadow: 0 8px 18px -16px rgba(15, 23, 42, 0.9);
+        }
+
+        .timeline li {
+            position: relative;
+            padding-left: 1.2rem;
+            margin-bottom: 0.95rem;
+        }
+
+        .timeline li::before {
+            content: "";
+            position: absolute;
+            top: 0.58rem;
+            left: 0;
+            width: 0.52rem;
+            height: 0.52rem;
+            border-radius: 9999px;
+            background: #0d9488;
+            box-shadow: 0 0 0 4px #ccfbf1;
+        }
+
+        .timeline li:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            left: 0.24rem;
+            top: 0.95rem;
+            width: 1px;
+            height: calc(100% + 0.15rem);
+            background: linear-gradient(180deg, #99f6e4, #bae6fd);
+        }
+
+        .map-wrap iframe {
+            width: 100%;
+            height: 280px;
+            border: 0;
+            border-radius: 0.9rem;
+        }
+
+        .mini-map iframe {
+            width: 100%;
+            height: 180px;
+            border: 0;
+            border-radius: 0.75rem;
+        }
+
+        .map-wrap,
+        .mini-map {
+            position: relative;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .map-wrap .map-container {
+            height: 280px;
+        }
+
+        .mini-map .map-container {
+            height: 180px;
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+            border-radius: inherit;
+        }
+
+        .map-wrap .map-container iframe {
+            border-radius: 0.9rem;
+        }
+
+        .mini-map .map-container iframe {
+            border-radius: 0.75rem;
+        }
+
+        .map-skeleton {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 0.9rem;
+        }
+
+        .mini-map .map-skeleton {
+            border-radius: 0.75rem;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .map-wrap::before,
+        .mini-map::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 0.75rem 0.75rem 0 0;
+            background: linear-gradient(90deg, #14b8a6, #0ea5e9);
+        }
+
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            border: 1px solid #bae6fd;
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 0.45rem 0.8rem;
+            border-radius: 0.6rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all .2s ease;
+        }
+
+        .link-btn:hover {
+            background: #e0f2fe;
+            transform: translateY(-1px);
+        }
+
+        a.text-teal-700 {
+            text-decoration-thickness: 2px;
+            text-underline-offset: 2px;
+            transition: color .2s ease, text-decoration-color .2s ease;
+        }
+
+        a.text-teal-700:hover {
+            color: #0f766e;
+            text-decoration-color: #0f766e;
+        }
+
+        article.bg-white {
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+            box-shadow: 0 10px 24px -20px rgba(15, 23, 42, 0.45);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        article.bg-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.5);
+            border-color: #99f6e4;
+        }
+
+        article.bg-white h4 {
+            color: #0f172a;
+            letter-spacing: 0.01em;
+        }
+
+        #rainy article {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #rainy article::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #64748b, #0ea5e9);
+        }
+
+        .route-seq {
+            margin-top: 0.75rem;
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .route-seq li {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.8rem;
+            color: #334155;
+            line-height: 1.3;
+            position: relative;
+        }
+
+        .route-seq li:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            left: 0.58rem;
+            top: 1.18rem;
+            width: 1px;
+            height: calc(100% - 0.1rem);
+            background: linear-gradient(180deg, #67e8f9, #bfdbfe);
+        }
+
+        .route-num {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 9999px;
+            background: #ecfeff;
+            border: 1px solid #a5f3fc;
+            color: #0e7490;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px -7px rgba(14, 116, 144, 0.9);
+        }
+
+        @keyframes panelIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-sub {
+                font-size: 0.95rem;
+            }
+
+            .tab-strip {
+                padding: 0.28rem;
+            }
+
+            .day-tab {
+                font-size: 0.82rem;
+                padding-left: 0.85rem;
+                padding-right: 0.85rem;
+            }
+
+            .kpi {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .map-wrap iframe {
+                height: 220px;
+            }
+
+            .mini-map iframe {
+                height: 160px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .map-skeleton { animation: none; background: #f1f5f9; }
+        }
+
+        @media print {
+            body { background: #fff; padding-bottom: 0; }
+            .glass { box-shadow: none; border: 1px solid #ccc; }
+            .tab-scroll, .mode-btn, .link-btn, #day-tablist { display: none !important; }
+            .day-panel, .day-mode { display: block !important; opacity: 1 !important; animation: none !important; }
+            .day-mode[data-day-mode$="-rainy"] { margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #ccc; }
+            article { break-inside: avoid; page-break-inside: avoid; }
+            .map-skeleton { display: none; }
+            .map-container iframe { border: 1px solid #ddd; }
+            a { text-decoration: underline; }
+            a[href^="https"]::after { content: " (" attr(href) ")"; font-size: 0.75em; color: #666; word-break: break-all; }
+            .kpi, .chip { box-shadow: none; }
+        }
+    </style>
+</head>
+<body class="antialiased pb-16">
+    <header class="max-w-6xl mx-auto px-4 pt-10">
+        <div class="glass rounded-3xl p-6 md:p-8 shadow-xl">
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="chip chip-main">每日頁籤切換</span>
+                <span class="chip chip-main">晴天/雨天一鍵切換</span>
+                <span class="chip chip-main">每日至少 3 景點 + 3 美食</span>
+                <span class="chip chip-alt">Google 地圖/導航連結</span>
+                <span class="chip chip-alt">路線順序縮圖</span>
+            </div>
+            <h1 class="hero-title text-3xl md:text-4xl font-extrabold tracking-tight">沖繩 5天4夜 自駕行程（可切換版）</h1>
+            <p class="hero-sub mt-3 text-slate-600 leading-relaxed">每一天都能在同一頁切換晴天/雨天版本，不用離開當天內容；保留雨天總覽頁籤快速看全局。</p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 mt-6">
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            <article class="glass rounded-2xl p-5">
+                <h2 class="text-lg font-bold mb-2">航班</h2>
+                <p class="text-sm text-slate-700">05/14（四）14:55 TPE → 17:20 OKA</p>
+                <p class="text-sm text-slate-700">05/18（一）20:10 OKA → 20:50 RMQ</p>
+                <a class="link-btn mt-3" href="https://www.google.com/maps/search/?api=1&amp;query=Naha+Airport+Okinawa" target="_blank" rel="noopener">那霸機場 Google 地圖</a>
+            </article>
+            <article class="glass rounded-2xl p-5">
+                <h2 class="text-lg font-bold mb-2">住宿（全附 Google）</h2>
+                <ul class="text-sm text-slate-700 space-y-2">
+                    <li>Day 1：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Okinawa+Nansei+Kanko+Hotel+Naha" target="_blank" rel="noopener">沖繩南西觀光飯店</a></li>
+                    <li>Day 2-3：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Terrace+Garden+Mihama+Resort" target="_blank" rel="noopener">露台花園美濱渡假村</a></li>
+                    <li>Day 4：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Nest+Hotel+Naha+Nishi" target="_blank" rel="noopener">Nest 飯店 那霸西</a></li>
+                </ul>
+            </article>
+            <article class="glass rounded-2xl p-5">
+                <h2 class="text-lg font-bold mb-2">交通關鍵連結</h2>
+                <div class="flex flex-wrap gap-2">
+                    <a class="link-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Makishi+Station+Okinawa" target="_blank" rel="noopener">牧志站</a>
+                    <a class="link-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Omoromachi+Station+Okinawa" target="_blank" rel="noopener">歌町站</a>
+                    <a class="link-btn" href="https://www.google.com/maps/search/?api=1&amp;query=T+Galleria+DFS+Okinawa" target="_blank" rel="noopener">DFS 取車點</a>
+                    <a class="link-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Okinawa+car+rental+return+Naha+airport" target="_blank" rel="noopener">機場還車區</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="glass rounded-2xl p-4 md:p-5">
+            <div class="tab-scroll overflow-x-auto pb-1">
+                <div id="day-tablist" class="tab-strip flex gap-2 min-w-max" role="tablist" aria-label="每日頁籤">
+                    <button id="tab-day1" class="day-tab active rounded-xl px-4 py-2 font-bold" role="tab" aria-selected="true" aria-controls="day1" tabindex="0" data-target="day1">Day 1｜05/14</button>
+                    <button id="tab-day2" class="day-tab rounded-xl px-4 py-2 font-bold" role="tab" aria-selected="false" aria-controls="day2" tabindex="-1" data-target="day2">Day 2｜05/15</button>
+                    <button id="tab-day3" class="day-tab rounded-xl px-4 py-2 font-bold" role="tab" aria-selected="false" aria-controls="day3" tabindex="-1" data-target="day3">Day 3｜05/16</button>
+                    <button id="tab-day4" class="day-tab rounded-xl px-4 py-2 font-bold" role="tab" aria-selected="false" aria-controls="day4" tabindex="-1" data-target="day4">Day 4｜05/17</button>
+                    <button id="tab-day5" class="day-tab rounded-xl px-4 py-2 font-bold" role="tab" aria-selected="false" aria-controls="day5" tabindex="-1" data-target="day5">Day 5｜05/18</button>
+                    <button id="tab-rainy" class="day-tab rounded-xl px-4 py-2 font-bold" role="tab" aria-selected="false" aria-controls="rainy" tabindex="-1" data-target="rainy">雨天總覽</button>
+                </div>
+            </div>
+
+            <!-- Day 1 -->
+            <section id="day1" class="day-panel active mt-5" role="tabpanel" aria-labelledby="tab-day1">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="kpi">🚗 駕車：約 0 小時（無自駕）</span>
+                    <span class="kpi">👣 步行量：約 6,000-9,000 步</span>
+                </div>
+                <div class="flex items-center gap-2 mb-4" role="group" aria-label="Day 1 天氣模式">
+                    <button class="mode-btn active" data-day="day1" data-mode="sunny" aria-pressed="true">晴天版</button>
+                    <button class="mode-btn" data-day="day1" data-mode="rainy" aria-pressed="false">雨天版</button>
+                </div>
+
+                <div class="day-mode active" data-day-mode="day1-sunny">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">主線行程：那霸市區夜遊</h3>
+                            <ol class="timeline text-sm text-slate-700">
+                                <li>17:20 抵達那霸機場</li>
+                                <li>18:20 搭單軌到牧志站</li>
+                                <li>18:40 入住沖繩南西觀光飯店</li>
+                                <li>19:00 逛國際通</li>
+                                <li>20:30 晚餐（可從美食池挑選）</li>
+                            </ol>
+                        </article>
+                        <article class="map-wrap bg-white rounded-2xl border border-slate-200 p-4">
+                            <h3 class="text-base font-bold mb-2">路線縮圖（含順序）</h3>
+                            <div class="map-container relative">
+                                <div class="map-skeleton"></div>
+                                <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=Naha+Airport&amp;daddr=Makishi+Station+Okinawa+to:Okinawa+Nansei+Kanko+Hotel+Naha+to:Kokusai+Dori+Naha+to:Makishi+Public+Market" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                            </div>
+                            <ol class="route-seq">
+                                <li><span class="route-num">1</span> 那霸機場</li>
+                                <li><span class="route-num">2</span> 牧志站</li>
+                                <li><span class="route-num">3</span> 沖繩南西觀光飯店</li>
+                                <li><span class="route-num">4</span> 國際通</li>
+                                <li><span class="route-num">5</span> 牧志市場</li>
+                            </ol>
+                            <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=Naha+Airport&amp;destination=Makishi+Public+Market&amp;waypoints=Makishi+Station+Okinawa|Okinawa+Nansei+Kanko+Hotel+Naha|Kokusai+Dori+Naha" target="_blank" rel="noopener">開啟完整路線</a>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">景點選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>第一牧志公設市場：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Makishi+Public+Market" target="_blank" rel="noopener">Google</a></li>
+                                <li>國際通屋台村：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Kokusai+Street+Food+Village+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>唐吉訶德國際通：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Don+Quijote+Kokusai+Dori+Naha" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">美食選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>暖暮拉麵：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Danbo+Ramen+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>88 牛排：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Steak+House+88+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>ゆうなんぎい：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Yunangi+Naha" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="day-mode" data-day-mode="day1-rainy" aria-hidden="true">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">雨天版：那霸室內採買 + 在地晚餐</h3>
+                            <ol class="timeline text-sm text-slate-700">
+                                <li>DFS 或國際通室內商場優先</li>
+                                <li>伴手禮、藥妝集中採買</li>
+                                <li>晚餐選拉麵/定食/牛排，避免長時間淋雨移動</li>
+                            </ol>
+                        </article>
+                        <article class="map-wrap bg-white rounded-2xl border border-slate-200 p-4">
+                            <h3 class="text-base font-bold mb-2">雨天動線縮圖</h3>
+                            <div class="map-container relative">
+                                <div class="map-skeleton"></div>
+                                <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=Okinawa+Nansei+Kanko+Hotel+Naha&amp;daddr=T+Galleria+DFS+Okinawa+to:Kokusai+Dori+Naha+to:Danbo+Ramen+Naha" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                            </div>
+                            <ol class="route-seq">
+                                <li><span class="route-num">1</span> 南西觀光飯店</li>
+                                <li><span class="route-num">2</span> DFS</li>
+                                <li><span class="route-num">3</span> 國際通</li>
+                                <li><span class="route-num">4</span> 暖暮拉麵</li>
+                            </ol>
+                            <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=Okinawa+Nansei+Kanko+Hotel+Naha&amp;destination=Danbo+Ramen+Naha&amp;waypoints=T+Galleria+DFS+Okinawa|Kokusai+Dori+Naha" target="_blank" rel="noopener">開啟雨天路線</a>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">室內景點候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>DFS：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=T+Galleria+DFS+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                                <li>國際通商場：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Kokusai+Dori+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>壺屋陶藝街（短停）：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Tsuboya+Yachimun+Street" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">雨天美食候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>暖暮拉麵：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Danbo+Ramen+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>88 牛排：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Steak+House+88+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>三笠食堂：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Mikasa+Shokudo+Naha" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Day 2 -->
+            <section id="day2" class="day-panel mt-5" role="tabpanel" aria-labelledby="tab-day2" aria-hidden="true">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="kpi">🚗 駕車：約 2.0-2.5 小時</span>
+                    <span class="kpi">👣 步行量：約 8,000-12,000 步</span>
+                </div>
+                <div class="flex items-center gap-2 mb-4" role="group" aria-label="Day 2 天氣模式">
+                    <button class="mode-btn active" data-day="day2" data-mode="sunny" aria-pressed="true">晴天版</button>
+                    <button class="mode-btn" data-day="day2" data-mode="rainy" aria-pressed="false">雨天版</button>
+                </div>
+
+                <div class="day-mode active" data-day-mode="day2-sunny">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">主線行程：文青＋購物＋夕陽</h3>
+                            <ol class="timeline text-sm text-slate-700">
+                                <li>09:30 DFS 取車</li>
+                                <li>10:30 港川外人住宅街</li>
+                                <li>13:30 AEON Rycom</li>
+                                <li>15:30 入住露台花園美濱</li>
+                                <li>17:00 日落海灘 + 美國村</li>
+                            </ol>
+                        </article>
+                        <article class="map-wrap bg-white rounded-2xl border border-slate-200 p-4">
+                            <h3 class="text-base font-bold mb-2">路線縮圖（含順序）</h3>
+                            <div class="map-container relative">
+                                <div class="map-skeleton"></div>
+                                <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=T+Galleria+DFS+Okinawa&amp;daddr=Minatogawa+Stateside+Town+Okinawa+to:AEON+MALL+Okinawa+Rycom+to:Terrace+Garden+Mihama+Resort+to:Sunset+Beach+Chatan+to:American+Village+Okinawa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                            </div>
+                            <ol class="route-seq">
+                                <li><span class="route-num">1</span> DFS 取車</li>
+                                <li><span class="route-num">2</span> 港川外人住宅街</li>
+                                <li><span class="route-num">3</span> AEON Rycom</li>
+                                <li><span class="route-num">4</span> 美濱飯店</li>
+                                <li><span class="route-num">5</span> 日落海灘 / 美國村</li>
+                            </ol>
+                            <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=T+Galleria+DFS+Okinawa&amp;destination=American+Village+Okinawa&amp;waypoints=Minatogawa+Stateside+Town+Okinawa|AEON+MALL+Okinawa+Rycom|Terrace+Garden+Mihama+Resort|Sunset+Beach+Chatan" target="_blank" rel="noopener">開啟完整路線</a>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">景點選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>浦添大公園：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Urasoe+Park+Observation+Deck" target="_blank" rel="noopener">Google</a></li>
+                                <li>Depot Island 夜拍：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Depot+Island+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                                <li>Araha Beach：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Araha+Beach+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">美食選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>Kijimuna 塔可飯：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Kijimuna+Depot+Island" target="_blank" rel="noopener">Google</a></li>
+                                <li>Blue Seal：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Blue+Seal+American+Village" target="_blank" rel="noopener">Google</a></li>
+                                <li>浜屋沖繩麵：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Hamaya+Soba+Chatan" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="day-mode" data-day-mode="day2-rainy" aria-hidden="true">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">雨天版：中部室內購物日</h3>
+                            <ol class="timeline text-sm text-slate-700">
+                                <li>港川只保留咖啡短停</li>
+                                <li>AEON Rycom 長時間逛街 + 午晚餐</li>
+                                <li>回美國村室內餐廳，避免海邊久留</li>
+                            </ol>
+                        </article>
+                        <article class="map-wrap bg-white rounded-2xl border border-slate-200 p-4">
+                            <h3 class="text-base font-bold mb-2">雨天動線縮圖</h3>
+                            <div class="map-container relative">
+                                <div class="map-skeleton"></div>
+                                <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=T+Galleria+DFS+Okinawa&amp;daddr=AEON+MALL+Okinawa+Rycom+to:Terrace+Garden+Mihama+Resort+to:American+Village+Okinawa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                            </div>
+                            <ol class="route-seq">
+                                <li><span class="route-num">1</span> DFS</li>
+                                <li><span class="route-num">2</span> AEON Rycom</li>
+                                <li><span class="route-num">3</span> 美濱飯店</li>
+                                <li><span class="route-num">4</span> 美國村室內餐廳</li>
+                            </ol>
+                            <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=T+Galleria+DFS+Okinawa&amp;destination=American+Village+Okinawa&amp;waypoints=AEON+MALL+Okinawa+Rycom|Terrace+Garden+Mihama+Resort" target="_blank" rel="noopener">開啟雨天路線</a>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">室內景點候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>AEON Rycom：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=AEON+MALL+Okinawa+Rycom" target="_blank" rel="noopener">Google</a></li>
+                                <li>PARCO CITY：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=San+A+PARCO+CITY+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                                <li>美國村室內商店：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=American+Village+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">雨天美食候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>AEON 美食街：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=AEON+MALL+Okinawa+Rycom+Food+Court" target="_blank" rel="noopener">Google</a></li>
+                                <li>Blue Seal：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Blue+Seal+American+Village" target="_blank" rel="noopener">Google</a></li>
+                                <li>迴轉壽司（美濱）：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Kaiten+Sushi+Mihama+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Day 3 -->
+            <section id="day3" class="day-panel mt-5" role="tabpanel" aria-labelledby="tab-day3" aria-hidden="true">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="kpi">🚗 駕車：約 4.5-5.5 小時</span>
+                    <span class="kpi">👣 步行量：約 7,000-10,000 步</span>
+                </div>
+                <div class="flex items-center gap-2 mb-4" role="group" aria-label="Day 3 天氣模式">
+                    <button class="mode-btn active" data-day="day3" data-mode="sunny" aria-pressed="true">晴天版</button>
+                    <button class="mode-btn" data-day="day3" data-mode="rainy" aria-pressed="false">雨天版</button>
+                </div>
+
+                <div class="day-mode active" data-day-mode="day3-sunny">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">主線行程：北部海洋精華</h3>
+                            <ol class="timeline text-sm text-slate-700">
+                                <li>美國村出發北上</li>
+                                <li>美麗海水族館</li>
+                                <li>備瀨福木林道</li>
+                                <li>古宇利大橋 / 心型岩</li>
+                            </ol>
+                        </article>
+                        <article class="map-wrap bg-white rounded-2xl border border-slate-200 p-4">
+                            <h3 class="text-base font-bold mb-2">路線縮圖（含順序）</h3>
+                            <div class="map-container relative">
+                                <div class="map-skeleton"></div>
+                                <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=American+Village+Okinawa&amp;daddr=Okinawa+Churaumi+Aquarium+to:Bise+Fukugi+Tree+Road+to:Kouri+Bridge+Okinawa+to:Heart+Rock+Kouri+Island+to:American+Village+Okinawa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                            </div>
+                            <ol class="route-seq">
+                                <li><span class="route-num">1</span> 美國村</li>
+                                <li><span class="route-num">2</span> 美麗海水族館</li>
+                                <li><span class="route-num">3</span> 備瀨福木林道</li>
+                                <li><span class="route-num">4</span> 古宇利大橋</li>
+                                <li><span class="route-num">5</span> 心型岩</li>
+                                <li><span class="route-num">6</span> 回中部</li>
+                            </ol>
+                            <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=American+Village+Okinawa&amp;destination=American+Village+Okinawa&amp;waypoints=Okinawa+Churaumi+Aquarium|Bise+Fukugi+Tree+Road|Kouri+Bridge+Okinawa|Heart+Rock+Kouri+Island" target="_blank" rel="noopener">開啟完整路線</a>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">景點選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>今歸仁城跡：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Nakijin+Castle+Ruins" target="_blank" rel="noopener">Google</a></li>
+                                <li>海洋博公園：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Ocean+Expo+Park+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                                <li>古宇利海洋塔：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Kouri+Ocean+Tower" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">美食選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>岸本食堂：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Kishimoto+Shokudo" target="_blank" rel="noopener">Google</a></li>
+                                <li>山原そば：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Yambaru+Soba" target="_blank" rel="noopener">Google</a></li>
+                                <li>古宇利蝦蝦飯：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Kouri+Shrimp+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="day-mode" data-day-mode="day3-rainy" aria-hidden="true">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">雨天版：北部室內保守動線</h3>
+                            <ol class="timeline text-sm text-slate-700">
+                                <li>水族館主體延長停留</li>
+                                <li>海洋博公園室內館舍擇一</li>
+                                <li>取消備瀨或古宇利其一，提早回中部</li>
+                            </ol>
+                        </article>
+                        <article class="map-wrap bg-white rounded-2xl border border-slate-200 p-4">
+                            <h3 class="text-base font-bold mb-2">雨天動線縮圖</h3>
+                            <div class="map-container relative">
+                                <div class="map-skeleton"></div>
+                                <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=American+Village+Okinawa&amp;daddr=Okinawa+Churaumi+Aquarium+to:Ocean+Expo+Park+Okinawa+to:American+Village+Okinawa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                            </div>
+                            <ol class="route-seq">
+                                <li><span class="route-num">1</span> 美國村</li>
+                                <li><span class="route-num">2</span> 美麗海水族館</li>
+                                <li><span class="route-num">3</span> 海洋博公園（室內館）</li>
+                                <li><span class="route-num">4</span> 回中部</li>
+                            </ol>
+                            <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=American+Village+Okinawa&amp;destination=American+Village+Okinawa&amp;waypoints=Okinawa+Churaumi+Aquarium|Ocean+Expo+Park+Okinawa" target="_blank" rel="noopener">開啟雨天路線</a>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">室內景點候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>美麗海水族館：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Okinawa+Churaumi+Aquarium" target="_blank" rel="noopener">Google</a></li>
+                                <li>海洋博公園室內館：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Ocean+Expo+Park+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                                <li>名護市區商場：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Nago+Shopping+Center" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">雨天美食候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>水族館館內餐廳：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Churaumi+Aquarium+Restaurant" target="_blank" rel="noopener">Google</a></li>
+                                <li>岸本食堂：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Kishimoto+Shokudo" target="_blank" rel="noopener">Google</a></li>
+                                <li>名護在地食堂：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Nago+Shokudo+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Day 4 -->
+            <section id="day4" class="day-panel mt-5" role="tabpanel" aria-labelledby="tab-day4" aria-hidden="true">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="kpi">🚗 駕車（A）約 3.0-3.5 小時；（B）約 2.0-2.5 小時</span>
+                    <span class="kpi">👣 步行量：約 7,000-12,000 步（依路線）</span>
+                </div>
+                <div class="flex items-center gap-2 mb-4" role="group" aria-label="Day 4 天氣模式">
+                    <button class="mode-btn active" data-day="day4" data-mode="sunny" aria-pressed="true">晴天版</button>
+                    <button class="mode-btn" data-day="day4" data-mode="rainy" aria-pressed="false">雨天版</button>
+                </div>
+
+                <div class="day-mode active" data-day-mode="day4-sunny">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">主線：A/B 二擇一路線</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-700">
+                                <div class="border rounded-xl p-4 bg-teal-50/40 border-teal-200">
+                                    <p class="font-bold text-teal-800 mb-2">A. 文化路線</p>
+                                    <ol class="list-decimal list-inside space-y-1">
+                                        <li>沖繩世界（玉泉洞）</li>
+                                        <li>系滿魚市場</li>
+                                        <li>Nest 那霸西</li>
+                                    </ol>
+                                </div>
+                                <div class="border rounded-xl p-4 bg-cyan-50/40 border-cyan-200">
+                                    <p class="font-bold text-cyan-800 mb-2">B. 海景購物路線</p>
+                                    <ol class="list-decimal list-inside space-y-1">
+                                        <li>PARCO CITY</li>
+                                        <li>館內午餐</li>
+                                        <li>Nest 那霸西</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+                            <h3 class="text-base font-bold">路線縮圖（含順序）</h3>
+                            <div class="mini-map">
+                                <p class="text-xs font-semibold text-teal-700 mb-1">A 路線</p>
+                                <div class="map-container relative">
+                                    <div class="map-skeleton"></div>
+                                    <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=American+Village+Okinawa&amp;daddr=Okinawa+World+to:Itoman+Fish+Market+to:Nest+Hotel+Naha+Nishi" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                                </div>
+                                <ol class="route-seq">
+                                    <li><span class="route-num">1</span> 美國村</li>
+                                    <li><span class="route-num">2</span> 沖繩世界</li>
+                                    <li><span class="route-num">3</span> 系滿魚市場</li>
+                                    <li><span class="route-num">4</span> Nest 那霸西</li>
+                                </ol>
+                                <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=American+Village+Okinawa&amp;destination=Nest+Hotel+Naha+Nishi&amp;waypoints=Okinawa+World|Itoman+Fish+Market" target="_blank" rel="noopener">開啟 A 路線</a>
+                            </div>
+                            <div class="mini-map">
+                                <p class="text-xs font-semibold text-cyan-700 mb-1">B 路線</p>
+                                <div class="map-container relative">
+                                    <div class="map-skeleton"></div>
+                                    <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=American+Village+Okinawa&amp;daddr=San+A+PARCO+CITY+Okinawa+to:Nest+Hotel+Naha+Nishi" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                                </div>
+                                <ol class="route-seq">
+                                    <li><span class="route-num">1</span> 美國村</li>
+                                    <li><span class="route-num">2</span> PARCO CITY</li>
+                                    <li><span class="route-num">3</span> Nest 那霸西</li>
+                                </ol>
+                                <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=American+Village+Okinawa&amp;destination=Nest+Hotel+Naha+Nishi&amp;waypoints=San+A+PARCO+CITY+Okinawa" target="_blank" rel="noopener">開啟 B 路線</a>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">景點選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>波上宮：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Naminoue+Shrine" target="_blank" rel="noopener">Google</a></li>
+                                <li>波之上海灘：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Naminoue+Beach" target="_blank" rel="noopener">Google</a></li>
+                                <li>瀨長島夜景：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Senagajima+Umikaji+Terrace" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">美食選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>Jack's Steak：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Jacks+Steak+House+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>三笠食堂：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Mikasa+Shokudo+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>PARCO 餐廳街：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=PARCO+CITY+Restaurant+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="day-mode" data-day-mode="day4-rainy" aria-hidden="true">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">雨天版：室內優先（建議 B）</h3>
+                            <ol class="timeline text-sm text-slate-700">
+                                <li>優先 PARCO CITY 室內行程</li>
+                                <li>館內午餐 + 採買</li>
+                                <li>直接進那霸，晚餐選室內餐廳</li>
+                            </ol>
+                        </article>
+                        <article class="map-wrap bg-white rounded-2xl border border-slate-200 p-4">
+                            <h3 class="text-base font-bold mb-2">雨天動線縮圖</h3>
+                            <div class="map-container relative">
+                                <div class="map-skeleton"></div>
+                                <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=American+Village+Okinawa&amp;daddr=San+A+PARCO+CITY+Okinawa+to:Nest+Hotel+Naha+Nishi+to:Jacks+Steak+House+Naha" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                            </div>
+                            <ol class="route-seq">
+                                <li><span class="route-num">1</span> 美國村</li>
+                                <li><span class="route-num">2</span> PARCO CITY</li>
+                                <li><span class="route-num">3</span> Nest 那霸西</li>
+                                <li><span class="route-num">4</span> Jack's Steak</li>
+                            </ol>
+                            <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=American+Village+Okinawa&amp;destination=Jacks+Steak+House+Naha&amp;waypoints=San+A+PARCO+CITY+Okinawa|Nest+Hotel+Naha+Nishi" target="_blank" rel="noopener">開啟雨天路線</a>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">室內景點候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>PARCO CITY：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=San+A+PARCO+CITY+Okinawa" target="_blank" rel="noopener">Google</a></li>
+                                <li>那霸百貨商圈：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Naha+Shopping+Mall" target="_blank" rel="noopener">Google</a></li>
+                                <li>那霸市歷史博物館：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Naha+City+Museum+History" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">雨天美食候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>Jack's Steak：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Jacks+Steak+House+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>三笠食堂：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Mikasa+Shokudo+Naha" target="_blank" rel="noopener">Google</a></li>
+                                <li>ゆうなんぎい：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Yunangi+Naha" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Day 5 -->
+            <section id="day5" class="day-panel mt-5" role="tabpanel" aria-labelledby="tab-day5" aria-hidden="true">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="kpi">🚗 駕車：約 2.0-3.0 小時</span>
+                    <span class="kpi">👣 步行量：約 7,000-11,000 步</span>
+                </div>
+                <div class="flex items-center gap-2 mb-4" role="group" aria-label="Day 5 天氣模式">
+                    <button class="mode-btn active" data-day="day5" data-mode="sunny" aria-pressed="true">晴天版</button>
+                    <button class="mode-btn" data-day="day5" data-mode="rainy" aria-pressed="false">雨天版</button>
+                </div>
+
+                <div class="day-mode active" data-day-mode="day5-sunny">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">主線：南部收尾 + 還車搭機</h3>
+                            <ol class="timeline text-sm text-slate-700">
+                                <li>波上宮 / 波之上海灘</li>
+                                <li>瀨長島 Umikaji Terrace</li>
+                                <li>Ashibinaa + iias（時間允許）</li>
+                                <li>加油、還車、機場</li>
+                            </ol>
+                        </article>
+                        <article class="map-wrap bg-white rounded-2xl border border-slate-200 p-4">
+                            <h3 class="text-base font-bold mb-2">路線縮圖（含順序）</h3>
+                            <div class="map-container relative">
+                                <div class="map-skeleton"></div>
+                                <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=Nest+Hotel+Naha+Nishi&amp;daddr=Naminoue+Shrine+to:Senagajima+Umikaji+Terrace+to:Okinawa+Outlet+Mall+Ashibinaa+to:iias+Okinawa+Toyosaki+to:Naha+Airport+Okinawa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                            </div>
+                            <ol class="route-seq">
+                                <li><span class="route-num">1</span> Nest 那霸西</li>
+                                <li><span class="route-num">2</span> 波上宮</li>
+                                <li><span class="route-num">3</span> 瀨長島</li>
+                                <li><span class="route-num">4</span> Ashibinaa</li>
+                                <li><span class="route-num">5</span> iias 豐崎</li>
+                                <li><span class="route-num">6</span> 那霸機場</li>
+                            </ol>
+                            <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=Nest+Hotel+Naha+Nishi&amp;destination=Naha+Airport+Okinawa&amp;waypoints=Naminoue+Shrine|Senagajima+Umikaji+Terrace|Okinawa+Outlet+Mall+Ashibinaa|iias+Okinawa+Toyosaki" target="_blank" rel="noopener">開啟完整路線</a>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">景點選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>DMM 水族館：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=DMM+Kariyushi+Aquarium" target="_blank" rel="noopener">Google</a></li>
+                                <li>豐崎海濱公園：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Toyosaki+Seaside+Park" target="_blank" rel="noopener">Google</a></li>
+                                <li>機場展望台：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Naha+Airport+Observation+Deck" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">美食選項</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>瀨長島幸福鬆餅：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=A+Happy+Pancake+Umikaji+Terrace" target="_blank" rel="noopener">Google</a></li>
+                                <li>iias 美食街：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=iias+Okinawa+Toyosaki+Food+Court" target="_blank" rel="noopener">Google</a></li>
+                                <li>Ashibinaa 周邊簡餐：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Okinawa+Outlet+Mall+Ashibinaa+restaurant" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="day-mode" data-day-mode="day5-rainy" aria-hidden="true">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                        <article class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 class="text-xl font-bold mb-3">雨天版：機場周邊室內版</h3>
+                            <ol class="timeline text-sm text-slate-700">
+                                <li>iias + DMM 水族館為主</li>
+                                <li>Ashibinaa 視時間二選一</li>
+                                <li>預留 30-45 分鐘加油/還車緩衝</li>
+                            </ol>
+                        </article>
+                        <article class="map-wrap bg-white rounded-2xl border border-slate-200 p-4">
+                            <h3 class="text-base font-bold mb-2">雨天動線縮圖</h3>
+                            <div class="map-container relative">
+                                <div class="map-skeleton"></div>
+                                <iframe data-src="https://www.google.com/maps?output=embed&amp;saddr=Nest+Hotel+Naha+Nishi&amp;daddr=iias+Okinawa+Toyosaki+to:DMM+Kariyushi+Aquarium+to:Naha+Airport+Okinawa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" onload="this.previousElementSibling?.remove()"></iframe>
+                            </div>
+                            <ol class="route-seq">
+                                <li><span class="route-num">1</span> Nest 那霸西</li>
+                                <li><span class="route-num">2</span> iias 豐崎</li>
+                                <li><span class="route-num">3</span> DMM 水族館</li>
+                                <li><span class="route-num">4</span> 那霸機場</li>
+                            </ol>
+                            <a class="link-btn mt-3" href="https://www.google.com/maps/dir/?api=1&amp;origin=Nest+Hotel+Naha+Nishi&amp;destination=Naha+Airport+Okinawa&amp;waypoints=iias+Okinawa+Toyosaki|DMM+Kariyushi+Aquarium" target="_blank" rel="noopener">開啟雨天路線</a>
+                        </article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">室內景點候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>iias 豐崎：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=iias+Okinawa+Toyosaki" target="_blank" rel="noopener">Google</a></li>
+                                <li>DMM 水族館：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=DMM+Kariyushi+Aquarium" target="_blank" rel="noopener">Google</a></li>
+                                <li>機場商店區：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Naha+Airport+Shopping" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                        <article class="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h4 class="font-bold mb-3">雨天美食候選</h4>
+                            <ul class="text-sm text-slate-700 space-y-2">
+                                <li>iias 美食街：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=iias+Okinawa+Toyosaki+Food+Court" target="_blank" rel="noopener">Google</a></li>
+                                <li>幸福鬆餅（瀨長島）：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=A+Happy+Pancake+Umikaji+Terrace" target="_blank" rel="noopener">Google</a></li>
+                                <li>那霸機場餐飲：<a class="text-teal-700 underline" href="https://www.google.com/maps/search/?api=1&amp;query=Naha+Airport+Restaurant" target="_blank" rel="noopener">Google</a></li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rainy Overview -->
+            <section id="rainy" class="day-panel mt-5" role="tabpanel" aria-labelledby="tab-rainy" aria-hidden="true">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="kpi">🌧️ 雨天策略：以室內景點/商場為主</span>
+                    <span class="kpi">🚗 行車策略：縮短移動、減少濕滑路段</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <article class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-bold mb-2">Day 1</h3><p class="text-sm text-slate-700">DFS + 國際通室內採買 + 晚餐。</p></article>
+                    <article class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-bold mb-2">Day 2</h3><p class="text-sm text-slate-700">AEON Rycom 拉長停留，晚上回美國村室內餐廳。</p></article>
+                    <article class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-bold mb-2">Day 3</h3><p class="text-sm text-slate-700">水族館主體延長，減少戶外點位。</p></article>
+                    <article class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-bold mb-2">Day 4</h3><p class="text-sm text-slate-700">優先 B 路線（PARCO 室內）+ 那霸室內晚餐。</p></article>
+                    <article class="bg-white rounded-2xl border border-slate-200 p-5 lg:col-span-2"><h3 class="font-bold mb-2">Day 5</h3><p class="text-sm text-slate-700">iias + DMM 為主，商場擇一後前往機場。</p></article>
+                </div>
+            </section>
+        </section>
+
+        <section class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <article class="glass rounded-2xl p-5">
+                <h3 class="text-lg font-bold mb-2">這次補上的功能</h3>
+                <ul class="text-sm text-slate-700 list-disc list-inside space-y-1">
+                    <li>Day 2~5 補齊候選景點與候選美食卡片。</li>
+                    <li>頁籤與切換按鈕補強可及性（ARIA + 鍵盤操作）。</li>
+                    <li>手機按鈕觸控尺寸提升至 44px。</li>
+                    <li>每張地圖新增固定順序清單。</li>
+                </ul>
+            </article>
+            <article class="glass rounded-2xl p-5">
+                <h3 class="text-lg font-bold mb-2">使用提醒</h3>
+                <ul class="text-sm text-slate-700 list-disc list-inside space-y-1">
+                    <li>路線縮圖為示意，請以當日導航與天候為準。</li>
+                    <li>Day 4 雨天建議優先 B 路線（室內時間最多）。</li>
+                </ul>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        const tabs = Array.from(document.querySelectorAll('.day-tab'));
+        const panels = Array.from(document.querySelectorAll('.day-panel'));
+        const modeButtons = Array.from(document.querySelectorAll('.mode-btn'));
+
+        function loadMapIframes(panel) {
+            panel.querySelectorAll('iframe[data-src]').forEach((iframe) => {
+                if (!iframe.getAttribute('src') || iframe.getAttribute('src') === 'about:blank') {
+                    iframe.setAttribute('src', iframe.dataset.src);
+                }
+            });
+        }
+
+        function setActiveDay(targetId) {
+            tabs.forEach((tab) => {
+                const isActive = tab.dataset.target === targetId;
+                tab.classList.toggle('active', isActive);
+                tab.setAttribute('aria-selected', String(isActive));
+                tab.setAttribute('tabindex', isActive ? '0' : '-1');
+            });
+
+            panels.forEach((panel) => {
+                const isActive = panel.id === targetId;
+                panel.classList.toggle('active', isActive);
+                panel.setAttribute('aria-hidden', String(!isActive));
+                if (isActive) loadMapIframes(panel);
+            });
+        }
+
+        function setDayMode(dayId, mode) {
+            const sunnyBlock = document.querySelector(`[data-day-mode="${dayId}-sunny"]`);
+            const rainyBlock = document.querySelector(`[data-day-mode="${dayId}-rainy"]`);
+            const isSunny = mode === 'sunny';
+
+            if (sunnyBlock) {
+                sunnyBlock.classList.toggle('active', isSunny);
+                sunnyBlock.setAttribute('aria-hidden', String(!isSunny));
+            }
+            if (rainyBlock) {
+                rainyBlock.classList.toggle('active', !isSunny);
+                rainyBlock.setAttribute('aria-hidden', String(isSunny));
+            }
+
+            document.querySelectorAll(`.mode-btn[data-day="${dayId}"]`).forEach((btn) => {
+                const pressed = btn.dataset.mode === mode;
+                btn.classList.toggle('active', pressed);
+                btn.setAttribute('aria-pressed', String(pressed));
+            });
+        }
+
+        function focusTabByOffset(currentTab, offset) {
+            const currentIndex = tabs.indexOf(currentTab);
+            if (currentIndex < 0) return;
+            const nextIndex = (currentIndex + offset + tabs.length) % tabs.length;
+            const nextTab = tabs[nextIndex];
+            setActiveDay(nextTab.dataset.target);
+            nextTab.focus();
+            nextTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => setActiveDay(tab.dataset.target));
+            tab.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    focusTabByOffset(tab, 1);
+                } else if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    focusTabByOffset(tab, -1);
+                } else if (event.key === 'Home') {
+                    event.preventDefault();
+                    setActiveDay(tabs[0].dataset.target);
+                    tabs[0].focus();
+                    tabs[0].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else if (event.key === 'End') {
+                    event.preventDefault();
+                    const lastDay = tabs[tabs.length - 2];
+                    setActiveDay(lastDay.dataset.target);
+                    lastDay.focus();
+                    lastDay.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            });
+        });
+
+        modeButtons.forEach((btn) => {
+            btn.addEventListener('click', () => setDayMode(btn.dataset.day, btn.dataset.mode));
+        });
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const SWIPE_THRESHOLD = 50;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > SWIPE_THRESHOLD) {
+                const activeTab = tabs.find(t => t.classList.contains('active'));
+                if (!activeTab) return;
+                const idx = tabs.indexOf(activeTab);
+                if (dx < 0 && idx < tabs.length - 1) {
+                    setActiveDay(tabs[idx + 1].dataset.target);
+                } else if (dx > 0 && idx > 0) {
+                    setActiveDay(tabs[idx - 1].dataset.target);
+                }
+            }
+        }, { passive: true });
+
+        ['day1', 'day2', 'day3', 'day4', 'day5'].forEach((dayId) => setDayMode(dayId, 'sunny'));
+        setActiveDay('day1');
+    </script>
+</body>
+</html>
