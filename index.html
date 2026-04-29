@@ -1009,7 +1009,7 @@
         <header class="header">
             <div class="header-left">
                 <h1>沖繩 5天4夜 自駕行程</h1>
-                <p class="header-sub">05/14（四）→ 05/18（一） ｜ 4 位成人</p>
+                <p class="header-sub">05/14（四）→ 05/18（一） ｜ 4 位成人 ｜ 最後更新：2026-04-29 19:48</p>
             </div>
             <div class="header-actions">
                 <button class="header-btn" id="themeToggle" aria-label="切換深色/淺色模式">
@@ -1025,7 +1025,7 @@
             <button class="tab-btn" data-target="day3" role="tab" aria-selected="false">Day 3 · 5/16</button>
             <button class="tab-btn" data-target="day4" role="tab" aria-selected="false">Day 4 · 5/17</button>
             <button class="tab-btn" data-target="day5" role="tab" aria-selected="false">Day 5 · 5/18</button>
-            <button class="tab-btn rainy-tab" data-target="rainy" role="tab" aria-selected="false">🌧️ 雨天</button>
+            <button class="tab-btn overview-tab" data-target="overview" role="tab" aria-selected="false">📋 總覽</button>
         </nav>
     </div>
 
@@ -1206,9 +1206,9 @@
                     <div class="timeline-item" data-type="hotel">
                         <div class="timeline-content">
                             <div class="timeline-time">15:30</div>
-                            <div class="timeline-title">入住露台花園美濱</div>
+                            <div class="timeline-title">入住塔塔米之宿北谷美濱</div>
                             <div class="timeline-desc">放行李、稍作休息</div>
-                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=ホテルテラス美浜 北谷町" target="_blank" rel="noopener">📍 開啟導航</a>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=TATAMI+NO+YADO+Chatan+Mihama" target="_blank" rel="noopener">📍 開啟導航</a>
                         </div>
                     </div>
                     <div class="timeline-item" data-type="default">
@@ -1348,11 +1348,12 @@
                             <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=古宇利島 今帰仁村" target="_blank" rel="noopener">📍 開啟導航</a>
                         </div>
                     </div>
-                    <div class="timeline-item" data-type="car" data-transit>
+                    <div class="timeline-item" data-type="hotel">
                         <div class="timeline-content">
                             <div class="timeline-time">18:00</div>
-                            <div class="timeline-title">南返美國村</div>
+                            <div class="timeline-title">南返塔塔米之宿北谷美濱</div>
                             <div class="timeline-desc">晚餐、休息</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=TATAMI+NO+YADO+Chatan+Mihama" target="_blank" rel="noopener">📍 開啟導航</a>
                         </div>
                     </div>
                     </div>
@@ -1674,54 +1675,105 @@
             </div>
         </div>
 
-        <!-- Rainy Overview -->
-        <div class="day-panel" id="rainy">
+        <!-- Itinerary Overview -->
+        <div class="day-panel" id="overview">
             <div class="kpi-row">
-                <span class="kpi">🌧️ 以室內景點/商場為主</span>
-                <span class="kpi">🚗 縮短移動、減少濕滑路段</span>
+                <span class="kpi">ℹ️ 整體行程速覽與行前提醒</span>
             </div>
 
             <div class="timeline-card">
                 <div class="timeline-header">
-                    <h3>雨天策略總覽</h3>
+                    <h3>✈️ 航班與租車資訊</h3>
                     <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
                 </div>
                 <div class="timeline-body">
-                <div class="timeline-item" data-type="default">
-                    <div class="timeline-content">
-                        <div class="timeline-title">Day 1</div>
-                        <div class="timeline-desc">DFS + 國際通室內採買 + 晚餐</div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-title">去程航班</div>
+                            <div class="timeline-desc">05/14 (四) 14:55 TPE ➡️ 17:20 OKA (泰越捷)</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-title">回程航班</div>
+                            <div class="timeline-desc">05/18 (一) 20:10 OKA ➡️ 20:50 RMQ (星宇航空)</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="car">
+                        <div class="timeline-content">
+                            <div class="timeline-title">租車區間</div>
+                            <div class="timeline-desc">05/15 10:00 取車 ～ 05/17 19:00 還車 (ORIX 旭橋站西店)</div>
+                        </div>
                     </div>
                 </div>
-                <div class="timeline-item" data-type="default">
-                    <div class="timeline-content">
-                        <div class="timeline-title">Day 2</div>
-                        <div class="timeline-desc">AEON Rycom 拉長停留，晚上回美國村室內餐廳</div>
+            </div>
+
+            <div class="timeline-card">
+                <div class="timeline-header">
+                    <h3>🏨 住宿快速導航</h3>
+                    <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="timeline-body">
+                    <div class="timeline-item" data-type="hotel">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Day 1：沖繩南西觀光飯店</div>
+                            <div class="timeline-desc">那霸市區 / 單軌牧志站旁</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=沖縄南西観光ホテル" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="hotel">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Day 2-3：塔塔米之宿北谷美濱</div>
+                            <div class="timeline-desc">中部北谷町 / 美國村 (原：露台花園美濱)</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=TATAMI+NO+YADO+Chatan+Mihama" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="hotel">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Day 4：Nest 那霸西</div>
+                            <div class="timeline-desc">那霸市區 / 近單軌旭橋站、波上宮</div>
+                            <a class="timeline-link" href="https://www.google.com/maps/search/?api=1&query=ホテルネスト那覇西 那覇市" target="_blank" rel="noopener">📍 開啟導航</a>
+                        </div>
                     </div>
                 </div>
-                <div class="timeline-item" data-type="default">
-                    <div class="timeline-content">
-                        <div class="timeline-title">Day 3</div>
-                        <div class="timeline-desc">水族館主體延長，減少戶外點位</div>
+            </div>
+
+            <div class="timeline-card">
+                <div class="timeline-header">
+                    <h3>🗺️ 每日主軸速覽</h3>
+                    <div class="timeline-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="timeline-body">
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Day 1：抵達那霸、國際通之夜</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Day 2：港川外人住宅、AEON、美國村夕陽</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Day 3：北部經典（美麗海水族館、古宇利島）</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Day 4：文化探索(玉泉洞) 或 PARCO海景購物</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-type="default">
+                        <div class="timeline-content">
+                            <div class="timeline-title">Day 5：市區漫遊(波上宮)、瀨長島/Outlet、搭機</div>
+                        </div>
                     </div>
                 </div>
-                <div class="timeline-item" data-type="default">
-                    <div class="timeline-content">
-                        <div class="timeline-title">Day 4</div>
-                        <div class="timeline-desc">優先 B 路線（PARCO 室內）+ 那霸室內晚餐</div>
-                    </div>
-                </div>
-                <div class="timeline-item" data-type="default">
-                    <div class="timeline-content">
-                        <div class="timeline-title">Day 5</div>
-                        <div class="timeline-desc">iias + DMM 為主，商場擇一後前往機場</div>
-                    </div>
-                </div>
-                    </div>
             </div>
 
             <div class="warn-card">
-                💡 <strong>雨天行車策略</strong>：縮短移動距離、減少濕滑路段，以大型商場/室內景點為主，預留額外緩衝時間。
+                💡 <strong>行前必備</strong>：護照、台灣駕照正本、日文譯本（缺一不可租車）。請留意泰越捷去程每人 20kg 額度，以及車廂內 4 件 20kg 行李配置。
             </div>
         </div>
     </main>
@@ -1754,7 +1806,7 @@
                     { lat: 26.2163, lng: 127.6715, title: 'ORIX 旭橋站西店 取車', name: 'オリックスレンタカー 那覇西町店', type: 'car', desc: '10:00 取車' },
                     { lat: 26.2680, lng: 127.7450, title: '港川外人住宅街', name: '港川外人住宅 北谷町', type: 'attraction', desc: '10:30 早午餐' },
                     { lat: 26.2850, lng: 127.7750, title: 'AEON MALL Rycom', name: 'イオンモール沖縄ライカム 北中城村', type: 'shopping', desc: '13:30 逛街' },
-                    { lat: 26.2580, lng: 127.7550, title: '露台花園美濱', name: 'ホテルテラス美浜 北谷町', type: 'hotel', desc: '15:30 入住' },
+                    { lat: 26.2580, lng: 127.7550, title: '塔塔米之宿', name: 'TATAMI NO YADO Chatan Mihama', type: 'hotel', desc: '15:30 入住' },
                     { lat: 26.2550, lng: 127.7520, title: '日落海灘 / 美國村', name: '美浜アメリカンビレッジ 北谷町', type: 'sunset', desc: '17:00 夕陽' },
                     { lat: 26.2560, lng: 127.7530, title: 'Kijimuna 塔可飯', name: 'Kijimuna デポットアイランド 北谷町', type: 'food', desc: '晚餐推薦' },
                     { lat: 26.2555, lng: 127.7510, title: 'Blue Seal 冰淇淋', name: 'Blue Seal アイスクリーム アメリカンビレッジ', type: 'food', desc: '甜點' },
@@ -1768,6 +1820,7 @@
                     { lat: 26.6940, lng: 127.8730, title: '午餐：岸本食堂', name: '岸本食堂 本部町', type: 'food', desc: '13:00 沖繩麵' },
                     { lat: 26.6850, lng: 127.8650, title: '備瀨福木林道', name: '備瀬のフクギ並木 本部町', type: 'park', desc: '14:30' },
                     { lat: 26.6950, lng: 127.9600, title: '古宇利島', name: '古宇利島 今帰仁村', type: 'island', desc: '16:00 大橋 + 心型岩' },
+                    { lat: 26.2580, lng: 127.7550, title: '南返塔塔米之宿', name: 'TATAMI NO YADO Chatan Mihama', type: 'hotel', desc: '18:00 晚餐休息' },
                 ]
             },
             day4: {
