@@ -975,8 +975,83 @@
         html.light .offline-banner { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
         html.light .rainy-section h3 { color: var(--sky); }
 
+        .export-pdf-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s;
+        }
+        .export-pdf-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+        }
+
+        /* PDF Exporting specific styles */
+        body.exporting-pdf .export-pdf-btn,
+        body.exporting-pdf .tab-strip,
+        body.exporting-pdf .header-actions,
+        body.exporting-pdf .offline-banner,
+        body.exporting-pdf .toast,
+        body.exporting-pdf .timeline-link,
+        body.exporting-pdf .day-panel:not(#overview) {
+            display: none !important;
+        }
+        body.exporting-pdf .sticky-wrapper {
+            position: static !important;
+        }
+        body.exporting-pdf .header {
+            position: static !important;
+            box-shadow: none !important;
+            background: none !important;
+            color: #0f766e !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding-bottom: 1rem !important;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 1rem;
+        }
+        body.exporting-pdf .header-sub {
+            color: #475569 !important;
+            opacity: 1 !important;
+        }
+        html.exporting-pdf, body.exporting-pdf {
+            overflow: visible !important;
+            height: auto !important;
+            min-height: auto !important;
+        }
+        body.exporting-pdf {
+            background: #fff !important;
+            color: #000 !important; /* Force pure black text */
+        }
+        /* Disable all animations and transitions to prevent html2canvas capturing partial opacity */
+        body.exporting-pdf * {
+            animation: none !important;
+            transition: none !important;
+            transform: none !important;
+        }
+        /* Force text colors to be solid */
+        body.exporting-pdf .timeline-title { color: #1e293b !important; }
+        body.exporting-pdf .timeline-desc { color: #475569 !important; }
+        body.exporting-pdf .timeline-time { color: #0f766e !important; }
+        body.exporting-pdf .timeline-item::before { opacity: 1 !important; }
+        body.exporting-pdf .day-panel { opacity: 1 !important; page-break-inside: auto !important; }
+        body.exporting-pdf .timeline-card { page-break-inside: avoid !important; }
+
         /* Print styles */
         @media print {
+            .export-pdf-btn { display: none !important; }
             .sticky-wrapper { position: static; }
             .header { position: static; box-shadow: none; }
             .header-actions { display: none; }
@@ -1681,6 +1756,10 @@
                 <span class="kpi">ℹ️ 整體行程速覽與行前提醒</span>
             </div>
 
+            <button class="export-pdf-btn" onclick="exportPDF()">
+                📄 匯出行程總覽 (PDF)
+            </button>
+
             <div class="timeline-card">
                 <div class="timeline-header">
                     <h3>✈️ 航班與租車資訊</h3>
@@ -1771,10 +1850,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="warn-card">
-                💡 <strong>行前必備</strong>：護照、台灣駕照正本、日文譯本（缺一不可租車）。請留意泰越捷去程每人 20kg 額度，以及車廂內 4 件 20kg 行李配置。
-            </div>
         </div>
     </main>
 
@@ -1786,6 +1861,7 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js" onerror="window.__leafletFailed=true;"></script>
     <script>
         const spotData = {
@@ -2229,6 +2305,44 @@
                 }
             }, 8000);
         });
+
+        function exportPDF() {
+            // Add exporting class to body and html
+            document.documentElement.classList.add('exporting-pdf');
+            document.body.classList.add('exporting-pdf');
+
+            // Scroll to top to prevent html2canvas clipping bugs
+            window.scrollTo(0, 0);
+
+            // Show toast
+            showToast('PDF 產生中，請稍候...');
+
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     '沖繩5天4夜行程_總覽.pdf',
+                image:        { type: 'jpeg', quality: 1.0 },
+                html2canvas:  { 
+                    scale: 3, 
+                    useCORS: true, 
+                    letterRendering: true, 
+                    scrollY: 0,
+                    windowWidth: document.documentElement.scrollWidth,
+                    windowHeight: document.documentElement.scrollHeight
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
+            };
+
+            html2pdf().set(opt).from(document.body).save().then(() => {
+                document.documentElement.classList.remove('exporting-pdf');
+                document.body.classList.remove('exporting-pdf');
+                showToast('PDF 匯出成功！');
+            }).catch(err => {
+                document.documentElement.classList.remove('exporting-pdf');
+                document.body.classList.remove('exporting-pdf');
+                showToast('PDF 匯出失敗，請重試。');
+            });
+        }
     </script>
 </body>
 </html>
