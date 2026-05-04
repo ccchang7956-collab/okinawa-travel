@@ -998,15 +998,32 @@
             box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
         }
 
+        .pdf-day-title {
+            display: none;
+        }
+
         /* PDF Exporting specific styles */
         body.exporting-pdf .export-pdf-btn,
+        body.exporting-pdf .export-options,
         body.exporting-pdf .tab-strip,
         body.exporting-pdf .header-actions,
         body.exporting-pdf .offline-banner,
         body.exporting-pdf .toast,
         body.exporting-pdf .timeline-link,
-        body.exporting-pdf .day-panel:not(#overview) {
+        body.exporting-pdf .map-container,
+        body.exporting-pdf .mode-toggle,
+        body.exporting-pdf:not(.export-all) .day-panel:not(#overview) {
             display: none !important;
+        }
+        body.exporting-pdf.export-all .day-panel {
+            display: block !important;
+            margin-bottom: 1rem;
+            page-break-after: always;
+            opacity: 1 !important;
+            animation: none !important;
+        }
+        body.exporting-pdf.export-all .day-panel:last-child {
+            page-break-after: auto;
         }
         body.exporting-pdf .sticky-wrapper {
             position: static !important;
@@ -1048,6 +1065,16 @@
         body.exporting-pdf .timeline-item::before { opacity: 1 !important; }
         body.exporting-pdf .day-panel { opacity: 1 !important; page-break-inside: auto !important; }
         body.exporting-pdf .timeline-card { page-break-inside: avoid !important; }
+        body.exporting-pdf .pdf-day-title {
+            display: block !important;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f766e !important;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 2px solid #e2e8f0;
+            margin-top: 0.5rem;
+        }
 
         /* Print styles */
         @media print {
@@ -1107,6 +1134,7 @@
     <main>
         <!-- Day 1 -->
         <div class="day-panel active" id="day1">
+            <h2 class="pdf-day-title">Day 1 · 05/14 (四)</h2>
             <div class="kpi-row">
                 <span class="kpi">🚗 駕車：0 小時（無自駕）</span>
             </div>
@@ -1215,6 +1243,7 @@
 
         <!-- Day 2 -->
         <div class="day-panel" id="day2">
+            <h2 class="pdf-day-title">Day 2 · 05/15 (五)</h2>
             <div class="kpi-row">
                 <span class="kpi">🚗 駕車：約 2.0-2.5 小時</span>
             </div>
@@ -1352,6 +1381,7 @@
 
         <!-- Day 3 -->
         <div class="day-panel" id="day3">
+            <h2 class="pdf-day-title">Day 3 · 05/16 (六)</h2>
             <div class="kpi-row">
                 <span class="kpi">🚗 駕車：約 4.5-5.5 小時</span>
             </div>
@@ -1466,6 +1496,7 @@
 
         <!-- Day 4 -->
         <div class="day-panel" id="day4">
+            <h2 class="pdf-day-title">Day 4 · 05/17 (日)</h2>
             <div class="kpi-row">
                 <span class="kpi">🚗 駕車：A 約 3.0h / B 約 2.0h</span>
             </div>
@@ -1644,6 +1675,7 @@
 
         <!-- Day 5 -->
         <div class="day-panel" id="day5">
+            <h2 class="pdf-day-title">Day 5 · 05/18 (一)</h2>
             <div class="kpi-row">
                 <span class="kpi">🚝 交通：步行 / 單軌 / 公車</span>
             </div>
@@ -1754,6 +1786,11 @@
         <div class="day-panel" id="overview">
             <div class="kpi-row">
                 <span class="kpi">ℹ️ 整體行程速覽與行前提醒</span>
+            </div>
+
+            <div class="export-options" style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; background: #fff; padding: 0.6rem; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <input type="checkbox" id="exportAllDays" style="width: 16px; height: 16px; cursor: pointer;">
+                <label for="exportAllDays" style="font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--ink); user-select: none;">匯出時包含每日詳細行程 (分頁顯示)</label>
             </div>
 
             <button class="export-pdf-btn" onclick="exportPDF()">
@@ -2307,9 +2344,20 @@
         });
 
         function exportPDF() {
+            const exportAll = document.getElementById('exportAllDays').checked;
+            const main = document.querySelector('main');
+            const overview = document.getElementById('overview');
+
             // Add exporting class to body and html
             document.documentElement.classList.add('exporting-pdf');
             document.body.classList.add('exporting-pdf');
+
+            if (exportAll) {
+                document.documentElement.classList.add('export-all');
+                document.body.classList.add('export-all');
+                // Move overview to the top of main so it appears first in the PDF
+                main.insertBefore(overview, main.firstChild);
+            }
 
             // Scroll to top to prevent html2canvas clipping bugs
             window.scrollTo(0, 0);
@@ -2319,7 +2367,7 @@
 
             const opt = {
                 margin:       [10, 10, 10, 10],
-                filename:     '沖繩5天4夜行程_總覽.pdf',
+                filename:     exportAll ? '沖繩5天4夜行程_完整版.pdf' : '沖繩5天4夜行程_總覽.pdf',
                 image:        { type: 'jpeg', quality: 1.0 },
                 html2canvas:  { 
                     scale: 3, 
@@ -2334,12 +2382,19 @@
             };
 
             html2pdf().set(opt).from(document.body).save().then(() => {
-                document.documentElement.classList.remove('exporting-pdf');
-                document.body.classList.remove('exporting-pdf');
+                document.documentElement.classList.remove('exporting-pdf', 'export-all');
+                document.body.classList.remove('exporting-pdf', 'export-all');
+                if (exportAll) {
+                    // Move overview back to the end of main
+                    main.appendChild(overview);
+                }
                 showToast('PDF 匯出成功！');
             }).catch(err => {
-                document.documentElement.classList.remove('exporting-pdf');
-                document.body.classList.remove('exporting-pdf');
+                document.documentElement.classList.remove('exporting-pdf', 'export-all');
+                document.body.classList.remove('exporting-pdf', 'export-all');
+                if (exportAll) {
+                    main.appendChild(overview);
+                }
                 showToast('PDF 匯出失敗，請重試。');
             });
         }
